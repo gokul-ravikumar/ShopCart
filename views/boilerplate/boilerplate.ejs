@@ -1,14 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopCart</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopCart</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    html, body { overflow-x: hidden; }
+  </style>
 </head>
-<body>
-    <div class="cointainer">
-        <%- body -%>
+<body class="bg-gray-50 text-gray-800 overflow-x-hidden">
+
+  <% if (typeof hideLayoutParts === 'undefined' || !hideLayoutParts) { %>
+  <!-- 🧭 Navbar -->
+  <nav class="bg-white shadow-md fixed top-0 left-0 w-full z-50 overflow-x-hidden">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between max-w-screen-xl">
+      <!-- Logo -->
+      <a href="/" class="text-2xl font-bold text-orange-600">digg it!!</a>
+
+      <!-- Desktop Menu -->
+      <ul class="hidden md:flex space-x-6 items-center">
+        <li><a href="/" class="hover:text-blue-500">Home</a></li>
+        <li><a href="/products" class="hover:text-blue-500">Products</a></li>
+        <li><a href="/cart" class="hover:text-blue-500">Cart</a></li>
+        <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
+
+        <% if (user) { %>
+          <li>
+            <a href="/user/logout" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">
+              Logout
+            </a>
+          </li>
+        <% } else { %>
+          <li>
+            <a href="/user/login" class="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition">
+              Login
+            </a>
+          </li>
+        <% } %>
+      </ul>
+
+      <!-- Mobile Menu Button -->
+      <button id="menuBtn" class="md:hidden text-gray-600 hover:text-blue-500 text-2xl focus:outline-none">
+        ☰
+      </button>
     </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <ul class="flex flex-col items-center space-y-3 py-4">
+        <li><a href="/" class="hover:text-blue-500">Home</a></li>
+        <li><a href="/products" class="hover:text-blue-500">Products</a></li>
+        <li><a href="/cart" class="hover:text-blue-500">Cart</a></li>
+        <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
+
+        <% if (user) { %>
+          <li><a href="/user/logout" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">Logout</a></li>
+        <% } else { %>
+          <li><a href="/user/login" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Login</a></li>
+        <% } %>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 🌟 Page Header -->
+  <header class="bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-center py-16 mt-16 shadow-md overflow-x-hidden">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-2">Our Menu</h1>
+    <p class="text-lg md:text-xl font-light">Discover delicious dishes from our kitchen</p>
+  </header>
+  <% } %>
+
+  <!-- 🧩 Page Content -->
+  <main class="container mx-auto px-4 py-6 overflow-x-hidden">
+    <%- body -%>
+  </main>
+
+  <% if (typeof hideLayoutParts === 'undefined' || !hideLayoutParts) { %>
+  <!-- ⚓ Footer -->
+  <footer class="bg-gray-900 text-gray-300 text-center py-6 mt-10 overflow-x-hidden">
+    <p>© <%= new Date().getFullYear() %> digg it!! — All rights reserved.</p>
+    <p class="text-sm mt-1">Crafted with ❤️ by the digg it!! team</p>
+  </footer>
+  <% } %>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu')?.classList.toggle('hidden');
+    });
+  </script>
 </body>
 </html>

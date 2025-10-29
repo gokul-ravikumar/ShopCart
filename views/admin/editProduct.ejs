@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Product</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-inter min-h-screen">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r hidden md:block shadow-sm">
+      <div class="p-6 text-2xl font-bold border-b text-blue-600">Admin Panel</div>
+      <nav class="p-4 space-y-4">
+        <a href="/admin/dashboard" class="block text-gray-700 hover:text-blue-500 transition">Dashboard</a>
+        <a href="/admin/user" class="block text-gray-700 hover:text-blue-500 transition">Users</a>
+        <a href="/admin/product"
+          class="block text-gray-700 hover:text-blue-500 transition font-semibold text-blue-600">Products</a>
+        <a href="/admin/sales-report" class="block text-gray-700 hover:text-blue-500 transition">Sales Report</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <header class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-semibold text-gray-800">✏️ Edit Product</h1>
+        <a href="/admin/product"
+          class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition text-sm font-medium shadow-sm">
+          ← Back to Products
+        </a>
+      </header>
+
+      <!-- Edit Form -->
+      <section class="bg-white shadow-md rounded-xl p-8 max-w-3xl mx-auto">
+        <form action="/admin/product/edit/<%= product._id %>" method="POST" enctype="multipart/form-data"
+          class="space-y-6">
+
+          <!-- Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product Title</label>
+            <input type="text" name="title" value="<%= product.title %>" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea name="description" rows="4" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"><%= product.description %></textarea>
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <input type="text" name="category" value="<%= product.category %>" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+          </div>
+
+          <!-- Price and Stock -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+              <input type="number" name="price" value="<%= product.price %>" min="0" required
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+              <input type="number" name="stock" value="<%= product.stock %>" min="0" required
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+          </div>
+
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+            <% if (product.image && product.image.length > 0) { %>
+              <div class="flex items-center gap-4 mb-3">
+                <% product.image.forEach(img => { %>
+                  <img src="<%= img.url %>" alt="Product image" class="w-20 h-20 rounded-lg object-cover border" />
+                <% }) %>
+              </div>
+            <% } %>
+            <input type="file" name="image" multiple
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+          </div>
+
+          <!-- Submit -->
+          <div class="flex justify-end pt-4">
+            <button type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md transition transform hover:-translate-y-0.5">
+              💾 Update Product
+            </button>
+          </div>
+
+        </form>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

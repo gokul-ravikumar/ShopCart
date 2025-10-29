@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Register</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/styles/adminLogin.css">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <form action="/admin/register" method="POST">
+        <h3>Register Admin</h3>
+
+        <label for="name">Name</label>
+        <input type="text" placeholder="Name" id="name" name="name" required>
+
+        <label for="email">E-mail</label>
+        <input type="email" placeholder="Email" id="email" name="email" required>
+
+        <label for="password">Password</label>
+        <input type="password" placeholder="Password" id="password" name="password" required>
+
+        <button type="submit">Register</button>
+
+        <div class="social">
+            <div class="go"><i class="fab fa-google"></i> Google</div>
+            <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
+        </div>
+
+        <p style="text-align:center; margin-top: 15px;">
+            Already have an account? <a href="/admin/login">Login here</a>
+        </p>
+    </form>
+
+    <!-- SweetAlert for messages -->
+    <% if (message) { %>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <script>
+            swal("<%= message %>");
+        </script>
+    <% } %>
+</body>
+</html>

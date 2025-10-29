@@ -33,7 +33,9 @@ const productSchema = new Schema({
         url: {
             type: String,
             required: true
-        }
+        },
+
+        _id: false
 
     }],
 
@@ -42,7 +44,7 @@ const productSchema = new Schema({
         required: true
     }
 
-})
+}, { timestamps: true })
 
 const Product = model("Product", productSchema)
 

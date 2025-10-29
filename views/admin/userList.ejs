@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 w-full">
+
+    <!-- Sidebar + Header Layout -->
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r hidden md:block">
+            <div class="p-6 text-2xl font-bold border-b">Admin Panel</div>
+            <nav class="p-4 space-y-4">
+                <a href="/admin/dashboard" class="block text-gray-700 hover:text-blue-500">Dashboard</a>
+                <a href="/admin/user" class="block text-gray-700 hover:text-blue-500">Users</a>
+                <a href="/admin/product" class="block text-gray-700 hover:text-blue-500">Products</a>
+                <a href="/admin/sales-report" class="block text-gray-700 hover:text-blue-500">Sales Report</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+
+            <!-- Header -->
+            <header class="bg-white shadow p-4 flex justify-between items-center">
+                <h1 class="text-xl font-semibold">Admin Dashboard</h1>
+                <span class="text-sm text-gray-600">Welcome, Admin</span>
+            </header>
+
+            <!-- Main Body -->
+            <main class="p-6 space-y-6">
+
+                <!-- Add User Button -->
+                <div class="flex justify-end">
+                    <a href="/admin/user/add"
+                        class="bg-blue-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                        + Add User
+                    </a>
+                </div>
+
+                <!-- Users Table -->
+                <section class="bg-white p-6 shadow rounded-lg">
+                    <h2 class="text-lg font-semibold mb-4">All Users</h2>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto text-sm">
+                            <thead class="bg-gray-100 text-left">
+                                <tr>
+                                    <th class="p-3">#</th>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Joined</th>
+                                    <th class="p-3 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (users && users.length> 0) { %>
+                                    <% users.forEach((user, i)=> { %>
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3">
+                                                <%= i + 1 %>
+                                            </td>
+                                            <td class="p-3">
+                                                <%= user.name %>
+                                            </td>
+                                            <td class="p-3">
+                                                <%= user.email %>
+                                            </td>
+                                            <td class="p-3">
+                                                <span
+                                                    class="<%= user.isBlocked ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold' %>">
+                                                    <%= user.isBlocked ? 'Blocked' : 'Active' %>
+                                                </span>
+                                            </td>
+                                            <td class="p-3">
+                                                <%= user.createdAt ? user.createdAt.toDateString() : '—' %>
+                                            </td>
+                                            <td class="p-3 text-center space-x-2">
+
+                                                <% if (user.isBlocked) { %>
+                                                    <!-- Unblock button -->
+                                                    <form action="/admin/user/unblock/<%= user._id %>" method="POST"
+                                                        class="inline">
+                                                        <button type="submit"
+                                                            class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition">
+                                                            Unblock
+                                                        </button>
+                                                    </form>
+                                                    <% } else { %>
+                                                        <!-- Block button -->
+                                                        <form action="/admin/user/block/<%= user._id %>" method="POST"
+                                                            class="inline">
+                                                            <button type="submit"
+                                                                class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition">
+                                                                Block
+                                                            </button>
+                                                        </form>
+                                                        <% } %>
+
+                                                            <!-- Delete button -->
+                                                            <a href="/admin/user/delete/<%= user._id %>"
+                                                                onclick="return confirm('Are you sure you want to delete this user?')"
+                                                                class="bg-gray-300 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-400 transition">
+                                                                Delete
+                                                            </a>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-gray-500 p-4">No users found
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 shadow rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">User Growth</h3>
+                        <canvas id="myChart"></canvas>
+                    </div>
+
+                    <div class="bg-white p-6 shadow rounded-lg flex flex-col items-center justify-center">
+                        <h3 class="text-lg font-semibold mb-4">User Distribution</h3>
+                        <div class="w-48 h-48"> <!-- 🔹 Makes the chart smaller -->
+                            <canvas id="myChart2"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart');
+        const ctx2 = document.getElementById('myChart2');
+
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'User Growth',
+                        data: [12, 19, 3, 5, 2, 3],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['Active', 'Blocked'],
+                    datasets: [{
+                        label: 'User Distribution',
+                        data: [80, 20],
+                        backgroundColor: ['rgb(54, 162, 235)', 'rgb(255, 99, 132)']
+                    }]
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,22 +1,24 @@
-const express = require("express")
-const router = express.Router()
-const multer = require("multer")
-const { storage } = require("../cloudConfig");
-const upload = multer({ storage });
-const controllers = require("../controllers/user")
+const express = require('express');
+const router = express.Router();
+const controllers = require('../controllers/user');
+const userAuth = require('../middlewares/userAuth');
 
+// Render login page (GET)
+router.get('/login', userAuth.isUserLoggedIn, controllers.loadLogin);
 
-//render register form
-router.get("/register",controllers.renderRegisterForm)
+// Handle login form submission (POST)
+router.post('/login', controllers.login);
 
+// Render register page (GET)
+router.get('/register', userAuth.isUserLoggedIn, controllers.loadRegister);
 
-//create user
-router.post("/register", upload.single('user[image]'), controllers.registerUser)
+// Handle register form submission (POST)
+router.post('/register', controllers.register);
 
-//render login form
-router.get("/login", controllers.renderLoginForm)
+// Protected dashboard
+router.get('/dashboard', userAuth.checkUserSession, controllers.loadDashboard);
 
-//login user
-router.post("/login", controllers.loginUser)
+// Logout
+router.get('/logout', userAuth.checkUserSession, controllers.logout);
 
-module.exports = router
+module.exports = router;

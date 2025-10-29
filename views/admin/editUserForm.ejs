@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
+        <h2 class="text-xl font-semibold mb-4">Edit User</h2>
+
+        <% if (message) { %>
+            <div class="bg-red-100 text-red-700 p-2 mb-4 rounded">
+                <%= message %>
+            </div>
+        <% } %>
+
+        <form action="/admin/user/edit" method="POST" class="space-y-4">
+            <input type="hidden" name="id" value="<%= user._id %>" />
+
+            <div>
+                <input type="text"
+                       name="name"
+                       value="<%= user.name %>"
+                       placeholder="Name"
+                       required
+                       class="p-2 border rounded w-full" />
+            </div>
+
+            <div>
+                <input type="email"
+                       name="email"
+                       value="<%= user.email %>"
+                       placeholder="Email"
+                       required
+                       class="p-2 border rounded w-full" />
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button type="submit"
+                        class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                    Save Changes
+                </button>
+                <a href="/admin/user"
+                   class="text-gray-600 hover:underline">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>
+ 

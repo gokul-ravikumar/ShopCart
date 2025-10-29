@@ -1,9 +1,8 @@
-const mongoose = require('mongoose')
-const { Schema, model } = mongoose
-const bcrypt = require('bcrypt')
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
+const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
-
     name: {
         type: String,
         required: true
@@ -11,7 +10,8 @@ const userSchema = new Schema({
 
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true // good practice to add this too
     },
 
     password: {
@@ -25,26 +25,31 @@ const userSchema = new Schema({
         default: 'buyer'
     },
 
-    image:{
-        filename:String,
-        url:String
-    }
-})
+    image: {
+        filename: String,
+        url: String,
+        _id: false
+    },
 
-// Pre-save hook to hash password before saving
+    isBlocked: {
+        type: Boolean,
+        default: false
+    }
+
+}, { timestamps: true }); // ✅ this line automatically adds createdAt & updatedAt
+
+// 🔒 Hash password before saving
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();  // Only hash if password is new or modified
-    const salt = await bcrypt.genSalt(12);  // 12 rounds is a solid standard
+    if (!this.isModified('password')) return next();
+    const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
-// Instance method to compare passwords during login
+// 🔑 Compare password during login
 userSchema.methods.validatePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
-
+const User = model('User', userSchema);
 module.exports = User;
-

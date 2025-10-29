@@ -1,26 +1,45 @@
-<% layout("./boilerplate/boilerplate.ejs") -%>
-    <div class="flex flex-col justify-center items-center w-screen h-screen">
-        <h2 class="py-2 font-bold text-xl sm:text-2xl md:text-3xl ">Welcome Back on <span
-                class="italic text-3xl md:text-4xl text-orange-600">ShopCart</span> </h2>
-        <form action="http://localhost:8080/user/register" method="post" enctype="multipart/form-data"
-            class="w-80 sm:w-70 md:w-96 py-3">
-            <div class="relative z-0 w-full mb-5 group py-2">
-                <input type="email" name="user[email]" id="userEmail"
-                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-black dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                    placeholder=" " required />
-                <label for="userEmail"
-                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email
-                    address</label>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopCart · Sign In</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center px-4">
+      <div class="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex justify-center mb-4">
+            <div class="text-4xl">🍽️</div>
+          </div>
+          <h1 class="text-2xl text-center">Welcome Back</h1>
+          <p class="text-center text-gray-600">Sign in to your account to continue</p>
+        </div>
+        <div class="px-6 pb-6">
+          <form method="post" action="/user/login" class="space-y-4">
+            <div class="space-y-2">
+              <label for="email" class="block text-sm font-medium">Email</label>
+              <input id="userEmail" name="user[email]" type="email" placeholder="you@example.com" class="w-full border rounded px-3 py-2" required />
             </div>
-            <div class="relative z-0 w-full mb-2 group py-2">
-                <input type="password" name="user[password]" id="userPassword"
-                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-black dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                    placeholder=" " required />
-                <label for="userPassword"
-                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="password" class="block text-sm font-medium">Password</label>
+                <button type="button" class="text-sm text-orange-600 hover:text-orange-700">Forgot password?</button>
+              </div>
+              <input id="userPassword" name="user[password]" type="password" placeholder="••••••••" class="w-full border rounded px-3 py-2" required />
             </div>
-            <button type="submit"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-        </form>
+            <button type="submit" class="w-full px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white">Sign In</button>
+          </form>
 
+
+          <div class="mt-6 text-center text-sm">
+            <span class="text-gray-600">Don't have an account? </span>
+            <a href="/user/register" class="text-orange-600 hover:text-orange-700">Register Here</a>
+          </div>
+        </div>
+      </div>
     </div>
+  </body>
+</html>

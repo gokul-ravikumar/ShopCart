@@ -15,9 +15,11 @@
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^5.1.0",
-    "mongoose": "^8.19.1",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.7.0",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
+    "nocache": "^4.0.0",
     "postcss-cli": "^11.0.1"
   },
   "devDependencies": {

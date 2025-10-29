@@ -1,47 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || "ShopCart" %></title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    /* Prevent subtle overflow issues */
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+  </style>
 </head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-<body>
-    <h1>WELCOME</h1>
-    <form action="http://localhost:8080/" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="userName">Name:</label>
-            <input type="text" name="user[name]" id="userName">
-        </div>
-        <br>
-        <div>
-            <label for="userEmail">Email:</label>
-            <input type="email" name="user[email]" id="userEmail">
-        </div>
-        <br>
-        <div>
-            <label for="userPassword">Password:</label>
-            <input type="password" name="user[password]" id="userPassword">
-        </div>
-        <br>
-        <div>
-            <label for="userRole">Choose a Role:</label>
+  <!-- 🧭 Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50 w-full">
+    <div class="max-w-7xl mx-auto px-4 md:px-5 lg:px-6 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="text-2xl font-bold text-blue-600">ShopCart</a>
 
-            <select name="user[role]" id="userRole">
-                <option value="admin">Admin</option>
-                <option value="seller">Seller</option>
-                <option value="buyer">Buyer</option>
-            </select>
-        </div>
-        <br>
-        <div>
-            <label for="userImage">Image:</label>
-            <input type="file" name="user[image]" id="userImage ">
-        </div>
-        <br>
-        <input type="submit" value="Submit">
-    </form>
+      <!-- Nav links -->
+      <ul class="hidden md:flex space-x-6">
+        <li><a href="/" class="hover:text-blue-500">Home</a></li>
+        <li><a href="/products" class="hover:text-blue-500">Products</a></li>
+        <li><a href="/cart" class="hover:text-blue-500">Cart</a></li>
+        <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
+      </ul>
+
+      <!-- Mobile menu button -->
+      <button id="menuBtn" class="md:hidden text-gray-600 hover:text-blue-500">
+        ☰
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <ul class="flex flex-col items-center space-y-2 py-3">
+        <li><a href="/" class="hover:text-blue-500">Home</a></li>
+        <li><a href="/products" class="hover:text-blue-500">Products</a></li>
+        <li><a href="/cart" class="hover:text-blue-500">Cart</a></li>
+        <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 🧩 Main content -->
+  <main class="flex-grow w-full">
+    <div class="max-w-7xl mx-auto px-4 md:px-5 lg:px-6 py-6">
+      <%- body -%>
+    </div>
+  </main>
+
+  <!-- 🦶 Footer -->
+  <footer class="bg-white border-t mt-auto w-full">
+    <div class="max-w-7xl mx-auto px-4 md:px-5 lg:px-6 py-4 text-center text-gray-500 text-sm">
+      &copy; <%= new Date().getFullYear() %> ShopCart. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    // Toggle mobile menu
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('hidden');
+    });
+  </script>
 </body>
-
 </html>
