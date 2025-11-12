@@ -33,7 +33,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
-  })
+  }),
 );
 
 // ✅ 5.5️⃣ Make session user available in all EJS views
