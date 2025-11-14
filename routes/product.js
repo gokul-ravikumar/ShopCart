@@ -3,39 +3,62 @@ const router = express.Router();
 const multer = require("multer");
 const { storage } = require("../cloudConfig");
 const upload = multer({ storage });
-const controllers = require("../controllers/product");
 const Product = require("../models/Product");
 const User = require("../models/User");
 
-//show products
+// 🧾 Show all products
 router.get("/", async (req, res) => {
-  let products = await Product.find();
-  res.render("products/index.ejs", { products, user: req.session.user });
+  try {
+    const products = await Product.find();
+    res.render("products/index", { products, user: req.session.user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading products");
+  }
 });
 
-//render product form
+// 🆕 Render new product form
 router.get("/new", async (req, res) => {
-  res.render("products/new.ejs");
+  res.render("products/new");
 });
 
-//create product
+// 🧠 Show single product details
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    // 👇 Note: keep the folder structure consistent
+    res.render("products/product-detail", { product });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+// ➕ Create new product
 router.post("/", upload.array("product[images][]", 5), async (req, res) => {
-  let { product } = req.body;
+  try {
+    const { product } = req.body;
 
-  let newProduct = new Product({
-    ...product,
-  });
+    const newProduct = new Product({
+      ...product,
+      image: req.files.map((obj) => ({
+        filename: obj.filename,
+        url: obj.path,
+      })),
+    });
 
-  newProduct.image = req.files.map((obj) => {
-    return {
-      filename: obj.filename,
-      url: obj.path,
-    };
-  });
+    await newProduct.save();
+    console.log("✅ New product saved:", newProduct);
 
-  let productRes = await newProduct.save();
-  console.log(productRes);
-  res.redirect("/product");
+    res.redirect("/product");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating product");
+  }
 });
 
 module.exports = router;

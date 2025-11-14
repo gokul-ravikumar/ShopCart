@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digg it!! · Resend OTP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex justify-center mb-4 text-4xl"></div>
+        <h1 class="text-2xl text-center font-semibold">Resend OTP</h1>
+        <p class="text-center text-gray-600">
+          We can send a new OTP to your registered phone number.
+        </p>
+      </div>
+
+      <div class="px-6 pb-6">
+        <% if (message) { %>
+          <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded text-center">
+            <%= message %>
+          </div>
+        <% } %>
+
+        <!-- Resend OTP Form -->
+        <form method="post" action="/user/resend-otp" class="space-y-4">
+          <input type="hidden" name="phone" value="<%= phone || '' %>">
+          <div class="text-center text-gray-700 mb-2">
+            <p class="text-sm">Phone: <span class="font-medium"><%= phone || '+91XXXXXXXXXX' %></span></p>
+          </div>
+
+          <button type="submit"
+            class="w-full px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white font-medium">
+            Resend OTP
+          </button>
+        </form>
+
+        <!-- Countdown message -->
+        <div class="mt-4 text-center text-sm text-gray-500">
+          <p id="countdown">Please wait 30s before requesting again...</p>
+        </div>
+
+        <!-- Back to Verify -->
+        <div class="mt-4 text-center">
+          <a href="/user/verify-otp?phone=<%= phone %>" class="text-gray-500 text-sm hover:text-orange-600">
+            Back to Verify OTP
+          </a>
+        </div>
+
+        <!-- Back to Login -->
+        <div class="mt-2 text-center">
+          <a href="/user/login" class="text-gray-500 text-sm hover:text-orange-600">
+            Back to Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple countdown to disable resending immediately
+    let countdownEl = document.getElementById('countdown');
+    let timeLeft = 30;
+    let interval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        countdownEl.textContent = `Please wait ${timeLeft}s before requesting again...`;
+      } else {
+        clearInterval(interval);
+        countdownEl.textContent = "You can now resend the OTP.";
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -20,7 +20,8 @@
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nocache": "^4.0.0",
-    "postcss-cli": "^11.0.1"
+    "postcss-cli": "^11.0.1",
+    "twilio": "^5.10.4"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

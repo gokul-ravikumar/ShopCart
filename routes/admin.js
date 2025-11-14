@@ -27,7 +27,7 @@ router.get("/product", controllers.loadProductList);
 router.get("/product/delete/:id", controllers.deleteProduct);
 
 // User Management
-router.post("/user/add", controllers.addUser);
+router.post("/user/add", upload.single("image"), controllers.addUser);
 
 router.post("/user/edit", controllers.editUser);
 
@@ -54,5 +54,7 @@ router.post(
   upload.array("image", 5),
   controllers.postEditProduct,
 );
+
+router.get("/logout", controllers.logout)
 
 module.exports = router;

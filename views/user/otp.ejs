@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>digg it!! · Verify OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body>
+    <div
+      class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center px-4"
+    >
+      <div
+        class="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
+      >
+        <div class="p-6">
+          <div class="flex justify-center mb-4 text-4xl"></div>
+          <h1 class="text-2xl text-center font-semibold">Verify OTP</h1>
+          <p class="text-center text-gray-600">
+            Enter the 6-digit code sent to your phone number
+          </p>
+        </div>
+
+        <div class="px-6 pb-6">
+          <% if(message && messageType) { %> <% if(messageType === 'success') {
+          %>
+          <div
+            class="mb-4 p-3 text-sm text-green-700 bg-green-100 border border-green-200 rounded text-center"
+          >
+            <%= message %>
+          </div>
+          <% } %> <% } %>
+
+          <!-- OTP Verification Form -->
+          <form method="post" action="/user/verify-otp" class="space-y-4">
+            <!-- Hidden phone number field -->
+            <input type="hidden" name="phone" value="<%= phone || '' %>" />
+            <div class="space-y-2">
+              <label for="otp" class="block text-sm font-medium"
+                >OTP Code</label
+              >
+              <input
+                id="otp"
+                name="otp"
+                type="text"
+                maxlength="6"
+                minlength="6"
+                placeholder="Enter 6-digit code"
+                class="w-full border rounded px-3 py-2 tracking-widest text-center text-lg font-medium"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white font-medium"
+            >
+              Verify OTP
+            </button>
+          </form>
+
+          <!-- Resend OTP -->
+          <div class="mt-6 text-center text-sm">
+            <p class="text-gray-600">Didn’t receive the code?</p>
+
+            <form
+              method="post"
+              action="/user/resend-otp"
+              class="flex items-center justify-center gap-2 mt-2"
+            >
+              <input type="hidden" name="phone" value="<%= phone || '' %>" />
+
+              <button
+                id="resendBtn"
+                type="submit"
+                class="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
+              >
+                Resend OTP
+                <span id="timerText" class="text-gray-500"></span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Back to login -->
+          <div class="mt-4 text-center">
+            <a
+              href="/user/login"
+              class="text-gray-500 text-sm hover:text-orange-600"
+            >
+              Back to Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let timeLeft = 30; // seconds
+
+      const timerText = document.getElementById("timerText");
+      const resendBtn = document.getElementById("resendBtn");
+
+      // disable button at start
+      resendBtn.disabled = true;
+      resendBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+      function startTimer() {
+        timerText.textContent = `in ${timeLeft}s`;
+
+        let timer = setInterval(() => {
+          timeLeft--;
+          timerText.textContent = `in ${timeLeft}s`;
+
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+
+            // hide the "in 00s" text
+            timerText.textContent = "";
+
+            // enable button
+            resendBtn.disabled = false;
+            resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          }
+        }, 1000);
+      }
+
+      startTimer();
+    </script>
+  </body>
+</html>

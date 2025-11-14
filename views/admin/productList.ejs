@@ -1,185 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ✅ SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- ✅ SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+  <body class="bg-gray-50 text-gray-900 w-full font-inter">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-64 bg-white border-r hidden md:block sticky top-0 left-0 h-screen"
+      >
+        <div class="p-6 text-2xl font-bold border-b text-black-600">
+          Admin Panel
+        </div>
+        <nav class="p-4 space-y-4">
+          <a
+            href="/admin/dashboard"
+            class="block text-gray-700 hover:text-blue-500 transition"
+            >Dashboard</a
+          >
+          <a
+            href="/admin/user"
+            class="block text-gray-700 hover:text-blue-500 transition"
+            >Users</a
+          >
+          <a
+            href="/admin/product"
+            class="block text-gray-700 hover:text-blue-500 transition font-semibold text-blue-600"
+            >Products</a
+          >
+          <a
+            href="/admin/sales-report"
+            class="block text-gray-700 hover:text-blue-500 transition"
+            >Sales Report</a
+          >
+        </nav>
+        <a href="/admin/logout"
+          ><button
+            class="bg-red-500 text-white h-[35px] w-[225px] rounded-[10px] ml-[15px] mt-[300px]"
+          >
+            logout
+          </button></a
+        >
+      </aside>
 
-<body class="bg-gray-50 text-gray-900 w-full font-inter">
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header
+          class="bg-white shadow-sm p-4 flex justify-between items-center"
+        >
+          <h1 class="text-xl font-semibold">Product Dashboard</h1>
+          <span class="text-sm text-gray-600"
+            >Welcome, <%= admin?.name || 'Admin' %></span
+          >
+        </header>
 
-  <div class="flex min-h-screen">
+        <!-- Add Product Floating Button -->
+        <div class="flex justify-end px-6 pt-6">
+          <a
+            href="/admin/product/add"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-md font-medium text-sm transition transform hover:-translate-y-0.5"
+          >
+            + Add Product
+          </a>
+        </div>
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r hidden md:block shadow-sm">
-      <div class="p-6 text-2xl font-bold border-b text-blue-600">Admin Panel</div>
-      <nav class="p-4 space-y-4">
-        <a href="/admin/dashboard" class="block text-gray-700 hover:text-blue-500 transition">Dashboard</a>
-        <a href="/admin/user" class="block text-gray-700 hover:text-blue-500 transition">Users</a>
-        <a href="/admin/product"
-          class="block text-gray-700 hover:text-blue-500 transition font-semibold text-blue-600">Products</a>
-        <a href="/admin/sales-report" class="block text-gray-700 hover:text-blue-500 transition">Sales Report</a>
-      </nav>
-    </aside>
+        <!-- Body -->
+        <main class="p-6 space-y-8">
+          <section class="bg-white p-6 shadow-md rounded-xl">
+            <h2 class="text-lg font-semibold mb-5 flex items-center gap-2">
+              📦 All Products
+            </h2>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
-
-      <!-- Header -->
-      <header class="bg-white shadow-sm p-4 flex justify-between items-center">
-        <h1 class="text-xl font-semibold">Product Dashboard</h1>
-        <span class="text-sm text-gray-600">Welcome, <%= admin?.name || 'Admin' %></span>
-      </header>
-
-      <!-- Add Product Floating Button -->
-      <div class="flex justify-end px-6 pt-6">
-        <a href="/admin/product/add"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-md font-medium text-sm transition transform hover:-translate-y-0.5">
-          + Add Product
-        </a>
-      </div>
-
-      <!-- Body -->
-      <main class="p-6 space-y-8">
-        <section class="bg-white p-6 shadow-md rounded-xl">
-          <h2 class="text-lg font-semibold mb-5 flex items-center gap-2">
-            📦 All Products
-          </h2>
-
-          <!-- Product Table -->
-          <div class="relative overflow-x-auto rounded-xl border border-gray-200">
-            <table class="w-full text-sm text-left text-gray-700">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b">
-                <tr>
-                  <th class="px-6 py-3">#</th>
-                  <th class="px-6 py-3 w-20">Image</th>
-                  <th class="px-6 py-3">Product Name</th>
-                  <th class="px-6 py-3">Category</th>
-                  <th class="px-6 py-3">Price</th>
-                  <th class="px-6 py-3">Stock</th>
-                  <th class="px-6 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (products && products.length > 0) { %>
-                  <% products.forEach((product, i)=> { %>
-                    <tr class="odd:bg-white even:bg-gray-50 border-b hover:bg-blue-50 transition">
-                      <td class="px-6 py-4 text-gray-500">
-                        <%= (currentPage - 1) * 10 + i + 1 %>
-                      </td>
-
-                      <!-- ✅ Product Image Preview -->
-                      <td class="px-6 py-4">
-                        <% if (product.image && product.image.length > 0) { %>
-                          <img src="<%= product.image[0].url %>" alt="<%= product.title || product.name %>"
-                            class="w-16 h-16 object-cover rounded-lg border" />
-                        <% } else { %>
-                          <span class="text-gray-400 italic text-sm">No image</span>
-                        <% } %>
-                      </td>
-
-                      <td class="px-6 py-4 font-medium text-gray-900">
-                        <%= product.title || product.name %>
-                      </td>
-                      <td class="px-6 py-4">
-                        <%= product.category?.name || product.category || 'N/A' %>
-                      </td>
-                      <td class="px-6 py-4 text-gray-800 font-semibold">&#8377;<%= product.price %></td>
-                      <td class="px-6 py-4 text-gray-700">
-                        <%= product.stock %>
-                      </td>
-                      <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2">
-                          <a href="/admin/product/edit/<%= product._id %>"
-                            class="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-600 transition shadow-sm">
-                            Edit
-                          </a>
-
-                          <!-- ✅ SweetAlert Delete Button -->
-                          <button type="button"
-                            onclick="confirmDelete('<%= product._id %>')"
-                            class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-red-600 transition shadow-sm">
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
+            <!-- Product Table -->
+            <div
+              class="relative overflow-x-auto rounded-xl border border-gray-200"
+            >
+              <table class="w-full text-sm text-left text-gray-700">
+                <thead
+                  class="text-xs text-gray-700 uppercase bg-gray-100 border-b"
+                >
                   <tr>
-                    <td colspan="7" class="text-center text-gray-500 p-5 italic">No products found</td>
+                    <th class="px-6 py-3">#</th>
+                    <th class="px-6 py-3 w-20">Image</th>
+                    <th class="px-6 py-3">Product Name</th>
+                    <th class="px-6 py-3">Category</th>
+                    <th class="px-6 py-3">Price</th>
+                    <th class="px-6 py-3">Stock</th>
+                    <th class="px-6 py-3 text-center">Actions</th>
                   </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  <% if (products && products.length > 0) { %> <%
+                  products.forEach((product, i)=> { %>
+                  <tr
+                    class="odd:bg-white even:bg-gray-50 border-b hover:bg-blue-50 transition"
+                  >
+                    <td class="px-6 py-4 text-gray-500">
+                      <%= (currentPage - 1) * 10 + i + 1 %>
+                    </td>
 
-          <!-- Modern Pagination -->
-          <div class="flex flex-col md:flex-row items-center justify-between mt-6">
-            <p class="text-sm text-gray-600 mb-3 md:mb-0">
-              Page <span class="font-semibold text-gray-900">
-                <%= currentPage %>
-              </span> of
-              <span class="font-semibold text-gray-900">
-                <%= totalPages %>
-              </span>
-            </p>
+                    <!-- ✅ Product Image Preview -->
+                    <td class="px-6 py-4">
+                      <% if (product.image && product.image.length > 0) { %>
+                      <img
+                        src="<%= product.image[0].url %>"
+                        alt="<%= product.title || product.name %>"
+                        class="w-16 h-16 object-cover rounded-lg border"
+                      />
+                      <% } else { %>
+                      <span class="text-gray-400 italic text-sm">No image</span>
+                      <% } %>
+                    </td>
 
-            <div class="flex items-center gap-2">
-              <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>"
-                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm">
+                    <td class="px-6 py-4 font-medium text-gray-900">
+                      <%= product.title || product.name %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <%= product.category?.name || product.category || 'N/A' %>
+                    </td>
+                    <td class="px-6 py-4 text-gray-800 font-semibold">
+                      &#8377;<%= product.price %>
+                    </td>
+                    <td class="px-6 py-4 text-gray-700">
+                      <%= product.stock %>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <div class="flex justify-center gap-2">
+                        <a
+                          href="/admin/product/edit/<%= product._id %>"
+                          class="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-600 transition shadow-sm"
+                        >
+                          Edit
+                        </a>
+
+                        <!-- ✅ SweetAlert Delete Button -->
+                        <button
+                          type="button"
+                          onclick="confirmDelete('<%= product._id %>')"
+                          class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-red-600 transition shadow-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }) %> <% } else { %>
+                  <tr>
+                    <td
+                      colspan="7"
+                      class="text-center text-gray-500 p-5 italic"
+                    >
+                      No products found
+                    </td>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Modern Pagination -->
+            <div
+              class="flex flex-col md:flex-row items-center justify-between mt-6"
+            >
+              <p class="text-sm text-gray-600 mb-3 md:mb-0">
+                Page
+                <span class="font-semibold text-gray-900">
+                  <%= currentPage %>
+                </span>
+                of
+                <span class="font-semibold text-gray-900">
+                  <%= totalPages %>
+                </span>
+              </p>
+
+              <div class="flex items-center gap-2">
+                <% if (currentPage > 1) { %>
+                <a
+                  href="?page=<%= currentPage - 1 %>"
+                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                >
                   ← Prev
                 </a>
-              <% } %>
-
-              <% for (let i=1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>" class="px-3 py-1.5 border text-sm rounded-lg transition shadow-sm
-                    <%= i === currentPage 
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100' %>">
+                <% } %> <% for (let i=1; i <= totalPages; i++) { %>
+                <a
+                  href="?page=<%= i %>"
+                  class="px-3 py-1.5 border text-sm rounded-lg transition shadow-sm <%= i === currentPage ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100' %>"
+                >
                   <%= i %>
                 </a>
-              <% } %>
-
-              <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>"
-                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm">
+                <% } %> <% if (currentPage < totalPages) { %>
+                <a
+                  href="?page=<%= currentPage + 1 %>"
+                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                >
                   Next →
                 </a>
-              <% } %>
+                <% } %>
+              </div>
             </div>
-          </div>
-
-        </section>
-      </main>
+          </section>
+        </main>
+      </div>
     </div>
-  </div>
 
-  <!-- ✅ SweetAlert2 Delete Confirmation -->
-  <script>
-    function confirmDelete(id) {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This product will be permanently deleted!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#e02424",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "Cancel",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = `/admin/product/delete/${id}`;
-        }
-      });
-    }
-  </script>
-
-</body>
-
+    <!-- ✅ SweetAlert2 Delete Confirmation -->
+    <script>
+      function confirmDelete(id) {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "This product will be permanently deleted!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#e02424",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "Cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `/admin/product/delete/${id}`;
+          }
+        });
+      }
+    </script>
+  </body>
 </html>

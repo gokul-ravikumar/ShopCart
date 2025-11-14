@@ -1,5 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
+  process.env;
+const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
+  lazyLoading: true,
+});
 
 // Load login page
 const loadLogin = (req, res) => {
@@ -15,13 +20,11 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      console.log("1111");
       return res.render("user/login", { message: "Invalid credentials" });
     }
 
     // ✅ Blocked user check — render page, NOT JSON
     if (user.isBlocked) {
-      console.log("2222");
       return res.render("user/login", {
         message: "Your account has been blocked. Please contact support.",
       });
@@ -30,7 +33,6 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      console.log("3333");
       return res.render("user/login", { message: "Invalid credentials" });
     }
 
@@ -38,7 +40,6 @@ const login = async (req, res) => {
     return res.redirect("/product");
   } catch (err) {
     console.error(err);
-    console.log("4444");
     return res.render("user/login", {
       message: "Something went wrong. Please try again.",
     });
@@ -55,15 +56,15 @@ const loadRegister = (req, res) => {
 // Handle register POST
 const register = async (req, res) => {
   try {
-    console.log("hi user");
-    const { name, email, password } = req.body.user;
+    const { name, email, password, phone } = req.body.user;
+    console.log("hlooooooooooo");
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       req.session.message = "User already exists";
       return res.redirect("/user/register");
     }
 
-    const newUser = new User({ name, email, password });
+    const newUser = new User({ name, email, password, phone });
     console.log(newUser);
     await newUser.save();
 
@@ -89,6 +90,97 @@ const loadDashboard = async (req, res) => {
   }
 };
 
+// 📤 1. Send OTP
+const sendOTP = async (req, res) => {
+  const { phone } = req.body;
+
+  const user = await User.findOne({ phone });
+
+  if (!user) {
+    return res.render("user/otp-login", {
+      message: "User not found. Please register.",
+      messageType: "error",
+    });
+  }
+
+  if (user.isBlocked) {
+    return res.render("user/otp-login", {
+      message: "Your account has been blocked. Please contact support.",
+      messageType: "error",
+    });
+  }
+
+  try {
+    const otpResponse = await client.verify.v2
+      .services(TWILIO_SERVICE_SID)
+      .verifications.create({
+        to: phone,
+        channel: "sms",
+      });
+
+    console.log("✅ OTP sent:", otpResponse.sid);
+
+    res.render("user/otp", {
+      message: "✅ OTP sent successfully! Please check your phone.",
+      messageType: "success",
+      phone,
+    });
+  } catch (error) {
+    console.error("❌ Error sending OTP:", error.message);
+    res.render("user/otp-login", {
+      message: "Failed to send OTP. Please try again.",
+      messageType: "error",
+    });
+  }
+};
+
+// ✅ 2. Verify OTP
+const verifyOTP = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.render("user/otp-login", {
+        message: "User not found.",
+        messageType: "error",
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.render("user/otp-login", {
+        message: "Your account has been blocked. Please contact support.",
+        messageType: "error",
+      });
+    }
+
+    const verifiedResponse = await client.verify.v2
+      .services(TWILIO_SERVICE_SID)
+      .verificationChecks.create({
+        to: phone,
+        code: otp,
+      });
+
+    if (verifiedResponse.status === "approved") {
+      console.log("✅ OTP verified successfully!");
+      req.session.user = user;
+      return res.redirect("/product");
+    } else {
+      return res.render("user/otp", {
+        message: "Invalid OTP or expired!",
+        messageType: "error",
+        phone,
+      });
+    }
+  } catch (error) {
+    console.error("❌ Verification failed:", error.message);
+    return res.render("user/otp-login", {
+      message: "Something went wrong. Please try again.",
+      messageType: "error",
+    });
+  }
+};
+
 // Logout
 const logout = (req, res) => {
   req.session.destroy((err) => {
@@ -107,5 +199,7 @@ module.exports = {
   loadRegister,
   register,
   loadDashboard,
+  sendOTP,
+  verifyOTP,
   logout,
 };

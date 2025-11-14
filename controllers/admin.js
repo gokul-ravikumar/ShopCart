@@ -156,9 +156,9 @@ const loadUserList = async (req, res) => {
 // Add User
 const addUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password: hashedPassword, phone });
     await newUser.save();
     res.redirect("/admin/user");
   } catch (error) {

@@ -14,7 +14,7 @@
     <div class="flex min-h-screen">
 
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r hidden md:block">
+        <aside class="w-64 bg-white border-r hidden md:block sticky top-0 left-0 h-screen">
             <div class="p-6 text-2xl font-bold border-b">Admin Panel</div>
             <nav class="p-4 space-y-4">
                 <a href="/admin/dashboard" class="block text-gray-700 hover:text-blue-500">Dashboard</a>
@@ -22,6 +22,7 @@
                 <a href="/admin/product/" class="block text-gray-700 hover:text-blue-500">Products</a>
                 <a href="/admin/sales-report" class="block text-gray-700 hover:text-blue-500">Sales Report</a>
             </nav>
+            <a href="/admin/logout"><button class="bg-red-500 text-white h-[35px] w-[225px] rounded-[10px] ml-[15px] mt-[300px]">logout</button></a>
         </aside>
 
         <!-- Main Content -->
