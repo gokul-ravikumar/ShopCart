@@ -52,6 +52,7 @@ const adminRoutes = require("./routes/admin");
 const { homeRouteUser } = require("./controllers/user");
 
 app.get("/", homeRouteUser);
+
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use("/product", productRoutes);

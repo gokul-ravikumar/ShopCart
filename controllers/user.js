@@ -28,7 +28,7 @@ const loadLogin = (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body.user;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -55,7 +55,7 @@ const login = async (req, res) => {
       });
     }
 
-    req.session.user = { id: user._id, email: user.email };
+    req.session.user = { id: user._id, email: user.email, name: user.name };
     return res.redirect("/product");
   } catch (err) {
     console.error(err);
@@ -76,7 +76,7 @@ const loadRegister = (req, res) => {
 // Handle register POST
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body.user;
+    const { name, email, password, phone } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       req.session.message = "User already exists";
@@ -130,14 +130,16 @@ const sendOTP = async (req, res) => {
   }
 
   try {
-    const otpResponse = await client.verify.v2
-      .services(TWILIO_SERVICE_SID)
-      .verifications.create({
-        to: phone,
-        channel: "sms",
-      });
+    if (process.env.NODE_ENV === "production") {
+      const otpResponse = await client.verify.v2
+        .services(TWILIO_SERVICE_SID)
+        .verifications.create({
+          to: phone,
+          channel: "sms",
+        });
 
-    console.log("✅ OTP sent:", otpResponse.sid);
+      console.log("✅ OTP sent:", otpResponse.sid);
+    }
 
     res.render("user/otp", {
       message: "✅ OTP sent successfully! Please check your phone.",
@@ -173,23 +175,28 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    const verifiedResponse = await client.verify.v2
-      .services(TWILIO_SERVICE_SID)
-      .verificationChecks.create({
-        to: phone,
-        code: otp,
-      });
+    if (process.env.NODE_ENV === "production") {
+      const verifiedResponse = await client.verify.v2
+        .services(TWILIO_SERVICE_SID)
+        .verificationChecks.create({
+          to: phone,
+          code: otp,
+        });
 
-    if (verifiedResponse.status === "approved") {
-      console.log("✅ OTP verified successfully!");
-      req.session.user = user;
-      return res.redirect("/product");
+      if (verifiedResponse.status === "approved") {
+        console.log("✅ OTP verified successfully!");
+        req.session.user = { id: user._id, email: user.email, name: user.name };
+        return res.redirect("/product");
+      } else {
+        return res.render("user/otp", {
+          message: "Invalid OTP or expired!",
+          messageType: "error",
+          phone,
+        });
+      }
     } else {
-      return res.render("user/otp", {
-        message: "Invalid OTP or expired!",
-        messageType: "error",
-        phone,
-      });
+      req.session.user = { id: user._id, email: user.email, name: user.name };
+      return res.redirect("/product");
     }
   } catch (error) {
     console.error("❌ Verification failed:", error.message);
@@ -220,14 +227,16 @@ const checkUser = async (req, res) => {
   }
 
   try {
-    // const otpResponse = await client.verify.v2
-    //   .services(TWILIO_SERVICE_SID)
-    //   .verifications.create({
-    //     to: phone,
-    //     channel: "sms",
-    //   });
+    if (process.env.NODE_ENV === "production") {
+      const otpResponse = await client.verify.v2
+        .services(TWILIO_SERVICE_SID)
+        .verifications.create({
+          to: phone,
+          channel: "sms",
+        });
 
-    // console.log("✅ OTP sent:", otpResponse.sid);
+      console.log("✅ OTP sent:", otpResponse.sid);
+    }
 
     res.render("user/verifyForgotPasswordOtp", {
       message: "✅ OTP sent successfully! Please check your phone.",
@@ -262,29 +271,28 @@ const verifyOtpForgot = async (req, res) => {
       });
     }
 
-    // ------------ OTP CHECK MODE ------------
+    if (process.env.NODE_ENV === "production") {
+      const verifiedResponse = await client.verify.v2
+        .services(TWILIO_SERVICE_SID)
+        .verificationChecks.create({
+          to: phone,
+          code: otp,
+        });
 
-    // const verifiedResponse = await client.verify.v2
-    //   .services(TWILIO_SERVICE_SID)
-    //   .verificationChecks.create({
-    //     to: phone,
-    //     code: otp,
-    //   });
-
-    // if (verifiedResponse.status === "approved") {
-    //   console.log("✅ OTP verified successfully!");
-    //   req.session.user = user;
-    //   return res.render("user/resetPassword",{message:null});
-    // } else {
-    //   return res.render("user/forgot-password", {
-    //     message: "Invalid OTP or expired!",
-    //     messageType: "error",
-    //     phone,
-    //   });
-    // }
-
-    // ------------ DEV TEST MODE ------------
-    res.render("user/resetPassword", { message: null, phone });
+      if (verifiedResponse.status === "approved") {
+        console.log("✅ OTP verified successfully!");
+        req.session.user = { id: user._id, email: user.email, name: user.name };
+        return res.render("user/resetPassword", { message: null, phone });
+      } else {
+        return res.render("user/forgot-password", {
+          message: "Invalid OTP or expired!",
+          messageType: "error",
+          phone,
+        });
+      }
+    } else {
+      res.render("user/resetPassword", { message: null, phone });
+    }
   } catch (error) {
     console.error("❌ Verification failed:", error.message);
     return res.render("user/forgot-password", {
@@ -333,6 +341,7 @@ const logout = (req, res) => {
 };
 
 module.exports = {
+  homeRouteUser,
   loadLogin,
   login,
   loadRegister,
