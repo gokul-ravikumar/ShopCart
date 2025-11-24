@@ -30,12 +30,6 @@ const userSchema = new Schema(
       required: true,
     },
 
-    role: {
-      type: String,
-      enum: ["admin", "seller", "buyer"],
-      default: "buyer",
-    },
-
     image: {
       filename: String,
       url: String,

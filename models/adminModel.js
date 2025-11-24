@@ -21,10 +21,6 @@ const adminSchema = new Schema(
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      default: "admin",
-    },
     image: {
       filename: String,
       url: String,
