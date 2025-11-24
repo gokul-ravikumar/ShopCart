@@ -6,6 +6,15 @@ const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
   lazyLoading: true,
 });
 
+//home route
+const homeRouteUser = (req, res) => {
+  if (req.session.user) {
+    res.redirect("/product");
+  } else {
+    res.redirect("/user/login");
+  }
+};
+
 // Load login page
 const loadLogin = (req, res) => {
   const message = req.session.message;

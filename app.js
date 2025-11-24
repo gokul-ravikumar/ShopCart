@@ -30,7 +30,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
-  }),
+  })
 );
 
 // ✅ 5.5️⃣ Make session user available in all EJS views
@@ -49,7 +49,9 @@ mongoose
 const userRoutes = require("./routes/user");
 const productRoutes = require("./routes/product");
 const adminRoutes = require("./routes/admin");
+const { homeRouteUser } = require("./controllers/user");
 
+app.get("/", homeRouteUser);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use("/product", productRoutes);
