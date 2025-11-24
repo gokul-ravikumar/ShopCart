@@ -21,11 +21,17 @@
       </div>
 
       <div class="px-6 pb-6">
-        <% if (message) { %>
+        <% if (message && messageType) { %>
+        <% if (messageType === 'success') { %>
+          <div class="mb-4 p-3 text-sm text-green-700 bg-green-100 border border-green-200 rounded">
+            <%= message %>
+          </div>
+        <% } else { %>
           <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded">
             <%= message %>
           </div>
-        <% } %>
+         <% } %>  
+         <% } %>  
 
         <!-- Normal Email/Password Login -->
         <form method="post" action="/user/login" class="space-y-4">
@@ -34,11 +40,11 @@
             <input id="userEmail" name="user[email]" type="email" placeholder="Enter your Mail ID"
               class="w-full border rounded px-3 py-2" required />
           </div>
-
+  
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <label for="password" class="block text-sm font-medium">Password</label>
-              <a href="/user/forget-password" class="text-sm text-orange-600 hover:text-orange-700">Forgot password?</a>
+              <a href="/user/forgotPassword" class="text-sm text-orange-600 hover:text-orange-700">Forgot password?</a>
             </div>
             <input id="userPassword" name="user[password]" type="password" placeholder="••••••••"
               class="w-full border rounded px-3 py-2" required />

@@ -53,12 +53,15 @@
 
         <!-- Add User Form -->
         <section class="bg-white shadow-md rounded-xl p-8 max-w-3xl mx-auto">
-          <% if (message) { %>
-          <div class="bg-red-100 text-red-700 p-3 mb-4 rounded">
+          <% if (message && messageType) { %> <% if (message === "success") { %>
+          <div class="bg-green-100 text-green-700 p-3 mb-4 rounded">
             <%= message %>
           </div>
-          <% } %>
-
+          <% } else { %>
+          <div class="bg-red-100 text-red-700 p-2 mb-4 rounded">
+            <%= message %>
+          </div>
+          <% } %> <% } %>
           <form
             action="/admin/user/add"
             method="POST"

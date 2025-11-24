@@ -60,14 +60,12 @@ const login = async (req, res) => {
     console.log("Admin found:", admin);
 
     if (!admin) {
-      console.log("666");
       return res.render("admin/login", { message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
 
     if (!isMatch) {
-      console.log("777");
       return res.render("admin/login", { message: "Invalid credentials" });
     }
 
@@ -327,7 +325,7 @@ const postEditProduct = async (req, res) => {
           const filePath = path.join(
             __dirname,
             "../uploads",
-            path.basename(img.url),
+            path.basename(img.url)
           );
           if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         } catch (err) {

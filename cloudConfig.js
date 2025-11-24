@@ -4,9 +4,7 @@ const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 // Load environment variables
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
+require("dotenv").config();
 
 // Configure Cloudinary credentials
 cloudinary.config({
@@ -19,6 +17,7 @@ cloudinary.config({
 let storage;
 
 if (process.env.NODE_ENV === "production") {
+  
   // --- Use Cloudinary in Production ---
   storage = new CloudinaryStorage({
     cloudinary: cloudinary,
@@ -28,7 +27,9 @@ if (process.env.NODE_ENV === "production") {
     },
   });
   console.log("✅ Using Cloudinary Storage");
+
 } else {
+
   // --- Use Local Uploads in Development ---
   storage = multer.diskStorage({
     destination: (req, file, cb) => {

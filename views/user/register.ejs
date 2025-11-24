@@ -28,13 +28,17 @@
         </div>
 
         <div class="px-6 pb-6">
-          <% if (message) { %>
-          <div
-            class="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded"
-          >
+        <% if (message && messageType) { %>
+        <% if (messageType === 'success') { %>
+          <div class="mb-4 p-3 text-sm text-green-700 bg-green-100 border border-green-200 rounded">
             <%= message %>
           </div>
-          <% } %>
+        <% } else { %>
+          <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded">
+            <%= message %>
+          </div>
+         <% } %>  
+         <% } %>  
 
           <form method="post" action="/user/register" class="space-y-4">
             <div class="space-y-2">

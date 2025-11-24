@@ -2,7 +2,13 @@ const express = require("express");
 const router = express.Router();
 const controllers = require("../controllers/user");
 const userAuth = require("../middlewares/userAuth");
-const { sendOTP, verifyOTP } = require("../controllers/user");
+const {
+  sendOTP,
+  verifyOTP,
+  checkUser,
+  verifyOtpForgot,
+  changePassword,
+} = require("../controllers/user");
 
 // Render login page (GET)
 router.get("/login", userAuth.isUserLoggedIn, controllers.loadLogin);
@@ -34,6 +40,28 @@ router.get("/verify-otp", (req, res) => {
 router.post("/verify-otp", verifyOTP);
 
 router.post("/resend-otp", sendOTP);
+
+//forgot-password
+router.get("/forgotPassword", (req, res) => {
+  res.render("user/forgot-password", { message: null });
+});
+
+//forgot-password POST
+router.post("/forgotPassword", checkUser);
+
+//verifying otp
+router.get("/verify-forgotOtp", (req, res) => {
+  res.render("/user/verifyForgotPasswordOtp", { message: null });
+});
+
+router.post("/verify-forgotOtp", verifyOtpForgot);
+
+//reset-password
+router.get("/reset-password", (req, res) => {
+  res.render("user/resetPassword", { message: null });
+});
+
+router.post("/reset-password", changePassword);
 
 // Logout
 router.get("/logout", userAuth.checkUserSession, controllers.logout);

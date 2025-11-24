@@ -10,7 +10,7 @@ const User = require("../models/User");
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
-    res.render("products/index", { products, user: req.session.user });
+    res.render("products/index", { products });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error loading products");

@@ -9,9 +9,12 @@ const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
 // Load login page
 const loadLogin = (req, res) => {
   const message = req.session.message;
+  const messageType = req.session.messageType;
   req.session.message = null;
+  req.session.messageType = null;
+
   res.set("Cache-Control", "no-store");
-  res.render("user/login", { message });
+  res.render("user/login", { message, messageType });
 };
 
 const login = async (req, res) => {
@@ -20,20 +23,27 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.render("user/login", { message: "Invalid credentials" });
+      return res.render("user/login", {
+        message: "Invalid credentials",
+        messageType: "error",
+      });
     }
 
     // ✅ Blocked user check — render page, NOT JSON
     if (user.isBlocked) {
       return res.render("user/login", {
         message: "Your account has been blocked. Please contact support.",
+        messageType: "error",
       });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.render("user/login", { message: "Invalid credentials" });
+      return res.render("user/login", {
+        message: "Invalid credentials",
+        messageType: "error",
+      });
     }
 
     req.session.user = { id: user._id, email: user.email };
@@ -42,6 +52,7 @@ const login = async (req, res) => {
     console.error(err);
     return res.render("user/login", {
       message: "Something went wrong. Please try again.",
+      messageType: "error",
     });
   }
 };
@@ -57,7 +68,6 @@ const loadRegister = (req, res) => {
 const register = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body.user;
-    console.log("hlooooooooooo");
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       req.session.message = "User already exists";
@@ -181,6 +191,126 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+const checkUser = async (req, res) => {
+  const { phone } = req.body;
+
+  const user = await User.findOne({ phone });
+
+  if (!user) {
+    return res.render("user/forgot-password", {
+      message: "We couldn’t find an account for this Phone Number.",
+      messageType: "error",
+    });
+  }
+
+  if (user.isBlocked) {
+    return res.render("user/forgot-password", {
+      message: "Your account has been blocked. Please contact support.",
+      messageType: "error",
+    });
+  }
+
+  try {
+    // const otpResponse = await client.verify.v2
+    //   .services(TWILIO_SERVICE_SID)
+    //   .verifications.create({
+    //     to: phone,
+    //     channel: "sms",
+    //   });
+
+    // console.log("✅ OTP sent:", otpResponse.sid);
+
+    res.render("user/verifyForgotPasswordOtp", {
+      message: "✅ OTP sent successfully! Please check your phone.",
+      messageType: "success",
+      phone,
+    });
+  } catch (error) {
+    console.error("❌ Error sending OTP:", error.message);
+    res.render("user/forgot-password", {
+      message: "Failed to send OTP. Please try again.",
+      messageType: "error",
+    });
+  }
+};
+
+const verifyOtpForgot = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.render("user/forgot-password", {
+        message: "User not found.",
+        messageType: "error",
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.render("user/forgot-password", {
+        message: "Your account has been blocked. Please contact support.",
+        messageType: "error",
+      });
+    }
+
+    // ------------ OTP CHECK MODE ------------
+
+    // const verifiedResponse = await client.verify.v2
+    //   .services(TWILIO_SERVICE_SID)
+    //   .verificationChecks.create({
+    //     to: phone,
+    //     code: otp,
+    //   });
+
+    // if (verifiedResponse.status === "approved") {
+    //   console.log("✅ OTP verified successfully!");
+    //   req.session.user = user;
+    //   return res.render("user/resetPassword",{message:null});
+    // } else {
+    //   return res.render("user/forgot-password", {
+    //     message: "Invalid OTP or expired!",
+    //     messageType: "error",
+    //     phone,
+    //   });
+    // }
+
+    // ------------ DEV TEST MODE ------------
+    res.render("user/resetPassword", { message: null, phone });
+  } catch (error) {
+    console.error("❌ Verification failed:", error.message);
+    return res.render("user/forgot-password", {
+      message: "Something went wrong. Please try again.",
+      messageType: "error",
+    });
+  }
+};
+
+//resetting password
+const changePassword = async (req, res) => {
+  const { phone, password, confirmPassword } = req.body;
+  const user = await User.findOne({ phone });
+  console.log("--------------------------------------------");
+
+  if (!user) {
+    return res.render("user/resetPassword", {
+      message: "User not found.",
+      messageType: "error",
+    });
+  }
+
+  if (password === confirmPassword) {
+    user.password = confirmPassword;
+    await user.save();
+    res.redirect("/user/login");
+  } else {
+    return res.render("user/resetPassword", {
+      message: "Passwords are not matching, Try Again",
+      messageType: "error",
+      phone,
+    });
+  }
+};
+
 // Logout
 const logout = (req, res) => {
   req.session.destroy((err) => {
@@ -201,5 +331,8 @@ module.exports = {
   loadDashboard,
   sendOTP,
   verifyOTP,
+  checkUser,
+  verifyOtpForgot,
+  changePassword,
   logout,
 };

@@ -27,7 +27,7 @@ router.get("/product", controllers.loadProductList);
 router.get("/product/delete/:id", controllers.deleteProduct);
 
 // User Management
-router.post("/user/add", upload.single("image"), controllers.addUser);
+router.post("/user/add", upload.array("image",5), controllers.addUser);
 
 router.post("/user/edit", controllers.editUser);
 
