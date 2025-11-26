@@ -12,37 +12,43 @@
     <div class="flex min-h-screen">
       <!-- Sidebar -->
       <aside
-        class="w-64 bg-white border-r block sticky top-0 left-0 h-screen"
+        class="w-64 bg-white border-r flex flex-col sticky top-0 left-0 h-screen"
       >
         <div class="p-6 text-2xl font-bold border-b">Admin Panel</div>
-        <nav class="p-4 space-y-4">
-          <a
-            href="/admin/dashboard"
-            class="block text-gray-700 hover:text-blue-500"
-            >Dashboard</a
+        <div class="h-full flex flex-col justify-between pb-5">
+          <nav class="p-4 space-y-4">
+            <a
+              href="/admin/dashboard"
+              class="block text-gray-700 hover:text-blue-500"
+              >Dashboard</a
+            >
+            <a
+              href="/admin/user/"
+              class="block text-gray-700 hover:text-blue-500"
+              >Users</a
+            >
+            <a
+              href="/admin/product/"
+              class="block text-gray-700 hover:text-blue-500"
+              >Products</a
+            >
+          </nav>
+          <a href="/admin/logout"
+            ><button
+              class="bg-red-500 text-white h-[35px] w-[225px] rounded-[10px] ml-[15px]"
+            >
+              logout
+            </button></a
           >
-          <a href="/admin/user/" class="block text-gray-700 hover:text-blue-500"
-            >Users</a
-          >
-          <a
-            href="/admin/product/"
-            class="block text-gray-700 hover:text-blue-500"
-            >Products</a
-          >
-        </nav>
-        <a href="/admin/logout"
-          ><button
-            class="bg-red-500 text-white h-[35px] w-[225px] rounded-[10px] ml-[15px] mt-[300px]"
-          >
-            logout
-          </button></a
-        >
+        </div>
       </aside>
 
       <!-- Main Content -->
       <div class="flex-1 flex flex-col">
         <!-- Header -->
-        <header class="bg-white shadow p-4 pt-6 pb-7 flex justify-between items-center sticky top-0 z-50">
+        <header
+          class="bg-white shadow p-4 pt-6 pb-7 flex justify-between items-center sticky top-0 z-50"
+        >
           <h1 class="text-xl font-semibold">Admin Dashboard</h1>
           <span class="text-sm text-gray-600">Welcome, Admin</span>
         </header>
