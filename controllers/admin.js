@@ -56,9 +56,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const admin = await Admin.findOne({ email });
-    console.log(email, password);
-    console.log("Admin found:", admin);
-
+    
     if (!admin) {
       return res.render("admin/login", { message: "Invalid credentials" });
     }

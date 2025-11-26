@@ -96,19 +96,6 @@ const register = async (req, res) => {
   }
 };
 
-// Load dashboard
-const loadDashboard = async (req, res) => {
-  try {
-    const user = req.session.user;
-    if (!user) return res.redirect("/login");
-
-    res.render("user/dashboard", { user });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-};
-
 // 📤 1. Send OTP
 const sendOTP = async (req, res) => {
   const { phone } = req.body;
@@ -281,7 +268,6 @@ const verifyOtpForgot = async (req, res) => {
 
       if (verifiedResponse.status === "approved") {
         console.log("✅ OTP verified successfully!");
-        req.session.user = { id: user._id, email: user.email, name: user.name };
         return res.render("user/resetPassword", { message: null, phone });
       } else {
         return res.render("user/forgot-password", {
@@ -306,7 +292,6 @@ const verifyOtpForgot = async (req, res) => {
 const changePassword = async (req, res) => {
   const { phone, password, confirmPassword } = req.body;
   const user = await User.findOne({ phone });
-  console.log("--------------------------------------------");
 
   if (!user) {
     return res.render("user/resetPassword", {
@@ -346,7 +331,6 @@ module.exports = {
   login,
   loadRegister,
   register,
-  loadDashboard,
   sendOTP,
   verifyOTP,
   checkUser,

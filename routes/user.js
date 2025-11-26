@@ -22,9 +22,6 @@ router.get("/register", userAuth.isUserLoggedIn, controllers.loadRegister);
 // Handle register form submission (POST)
 router.post("/register", controllers.register);
 
-// Protected dashboard
-router.get("/dashboard", userAuth.checkUserSession, controllers.loadDashboard);
-
 // GET: Render the OTP login page (phone input)
 router.get("/otp-page", (req, res) => {
   res.render("user/otp-login", { message: null });
