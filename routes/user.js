@@ -60,6 +60,16 @@ router.get("/reset-password", (req, res) => {
 
 router.post("/reset-password", changePassword);
 
+//cart
+router.get("/cart", userAuth.checkUserSession, controllers.cart);
+
+//add to cart
+router.post(
+  "/addToCart",
+  userAuth.checkUserSession,
+  controllers.addToCartProduct
+);
+
 // Logout
 router.get("/logout", userAuth.checkUserSession, controllers.logout);
 

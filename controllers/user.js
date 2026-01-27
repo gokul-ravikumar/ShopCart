@@ -1,3 +1,4 @@
+const Cart = require("../models/Cart");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
@@ -54,8 +55,10 @@ const login = async (req, res) => {
         messageType: "error",
       });
     }
-
-    req.session.user = { id: user._id, email: user.email, name: user.name };
+    req.session.user = {
+      id: user._id,
+      email: user.email,
+    };
     return res.redirect("/product");
   } catch (err) {
     console.error(err);
@@ -196,12 +199,12 @@ const verifyOTP = async (req, res) => {
 
 const checkUser = async (req, res) => {
   const { phone } = req.body;
-
+ 
   const user = await User.findOne({ phone });
 
   if (!user) {
     return res.render("user/forgot-password", {
-      message: "We couldn’t find an account for this Phone Number.",
+      message: "We couldn't find an account for this Phone Number.",
       messageType: "error",
     });
   }
@@ -313,6 +316,66 @@ const changePassword = async (req, res) => {
   }
 };
 
+//cart
+const cart = (req, res) => {
+  res.render("user/cart", { message: "welcome to cart" });
+};
+
+//add to cart
+const addToCartProduct = async (req, res) => {
+  const userId = req.session.user.id;
+  const productId = req.body.productId;
+  console.log("productId:", productId);
+
+  const userCart = await Cart.findOne({ userId });
+  console.log("cart user: ", userCart);
+
+  if (!userCart) {
+    const data = {
+      userId,
+      items: [{ productId, quantity: 1 }],
+    };
+    console.log("DATA =>", data);
+    const newCart = new Cart(data);
+    console.log(newCart);
+    await newCart.save();
+  } else {   
+    function checkingProductInCart(productId, data) {
+      for (let i = 0; i <= data.items.length - 1; i++) {
+        if (data.items[i].productId.toString() === productId) {
+          console.log("true");
+          return true;
+        }
+      }
+      console.log("false");
+      return false;
+    }
+    const isProductAvail = checkingProductInCart(productId, userCart);
+
+    if (isProductAvail) {
+      // store the qnty to a vairable
+      for (let i = 0; i <= userCart.items.length - 1; i++) {
+        if (userCart.items[i].productId.toString() === productId) {
+          userCart.items[i].quantity += 1;
+          console.log("found");
+          break;
+        }
+      }
+      await userCart.save();
+
+      // update the cart with new qnty
+    } else {
+      // Add this new product in the user cart with qnty 1
+      const newProduct = { productId, quantity: 1 };
+      console.log("uiiiii");
+      userCart.items.push(newProduct);
+      console.log("saved the product")
+      await userCart.save();
+    }
+  }
+  res.redirect(`/product/${productId}`);
+};
+
 // Logout
 const logout = (req, res) => {
   req.session.destroy((err) => {
@@ -336,5 +399,7 @@ module.exports = {
   checkUser,
   verifyOtpForgot,
   changePassword,
+  cart,
+  addToCartProduct,
   logout,
 };
