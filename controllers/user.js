@@ -1,3 +1,4 @@
+const getCartItemCount = require("../helpers/cartHelper");
 const Cart = require("../models/Cart");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
@@ -325,10 +326,8 @@ const cart = (req, res) => {
 const addToCartProduct = async (req, res) => {
   const userId = req.session.user.id;
   const productId = req.body.productId;
-  console.log("productId:", productId);
 
   const userCart = await Cart.findOne({ userId });
-  console.log("cart user: ", userCart);
 
   if (!userCart) {
     const data = {
@@ -343,11 +342,9 @@ const addToCartProduct = async (req, res) => {
     function checkingProductInCart(productId, data) {
       for (let i = 0; i <= data.items.length - 1; i++) {
         if (data.items[i].productId.toString() === productId) {
-          console.log("true");
           return true;
         }
       }
-      console.log("false");
       return false;
     }
     const isProductAvail = checkingProductInCart(productId, userCart);
@@ -357,7 +354,6 @@ const addToCartProduct = async (req, res) => {
       for (let i = 0; i <= userCart.items.length - 1; i++) {
         if (userCart.items[i].productId.toString() === productId) {
           userCart.items[i].quantity += 1;
-          console.log("found");
           break;
         }
       }
@@ -373,13 +369,8 @@ const addToCartProduct = async (req, res) => {
     }
   }
 
-  const totalItems = await Cart.aggregate([
-    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-    { $unwind: "$items" },
-    { $group: { _id: null, total: { $sum: "$items.quantity" } } },
-  ]);
-  const count = totalItems[0]?.total || 0;
-  res.json({ success: true, newCartItemCount: count });
+  const count = await getCartItemCount(userId);
+  res.status(201).json({ success: true, newCartItemCount: count });
 };
 
 // Logout

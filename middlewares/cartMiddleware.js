@@ -1,19 +1,22 @@
 const Cart = require("../models/Cart");
+const getCartItemCount = require("../helpers/cartHelper");
 
 const loadCartItemCount = async (req, res, next) => {
   const userId = req.session.user?.id;
-  if (userId) {
-    const cart = await Cart.findOne({ userId });
-    const count =
-      cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-    console.log("total items:", JSON.stringify(count));
+  try {
+    if (userId) {
+      const count = await getCartItemCount(userId);
+      console.log("total items:", count);
 
-    req.session.user.totalItems = count;
-    res.locals.user = req.session.user;
-  } else {
-    res.locals.user = null;
+      req.session.user.totalItems = count;
+      res.locals.user = req.session.user;
+    } else {
+      res.locals.user = null;
+    }
+    next();
+  } catch (error) {
+    console.log(error);
   }
-  next();
-}
+};
 
-module.exports = loadCartItemCount
+module.exports = loadCartItemCount;
