@@ -8,6 +8,8 @@
   </head>
 
   <body class="bg-gray-50 text-gray-900 font-inter min-h-screen">
+    <!-- Header -->
+    <% layout("./boilerplate/boilerplate.ejs") -%>
     <div class="max-w-6xl mx-auto p-8">
       <!-- Back Button -->
       <a
@@ -51,25 +53,26 @@
               $<%= product.price %>
             </p>
 
-            <form action="/user/addToCart" method="post">
-              <input
-                type="hidden"
-                name="productId"
-                value="<%= product._id %>"
-              />
-              <button
-                id="addToCart"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-md transition transform hover:-translate-y-0.5"
-              >
-                Add to Cart
-              </button>
-            </form>
+            <input
+              type="hidden"
+              id="productId"
+              name="productId"
+              value="<%= product._id %>"
+            />
+
+            <button
+              id="addToCart"
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-md transition transform hover:-translate-y-0.5"
+            >
+              Add to Cart
+            </button>
 
             <button
               class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium shadow-md transition transform hover:-translate-y-0.5"
             >
               Buy Now
             </button>
+            <script src="/script/addToCart.js"></script>
           </div>
         </div>
       </div>

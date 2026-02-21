@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
     }
 
     // 👇 Note: keep the folder structure consistent
-    res.render("products/product-detail", { product });
+    res.render("products/product-detail", { product, hidePageHeader: true });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");

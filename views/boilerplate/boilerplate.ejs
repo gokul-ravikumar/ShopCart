@@ -22,7 +22,17 @@
       <ul class="hidden md:flex space-x-6 items-center">
         <li><a href="/" class="hover:text-blue-500">Home</a></li>
         <li><a href="/products" class="hover:text-blue-500">Products</a></li>
-        <li><a href="/cart" class="hover:text-blue-500">Cart</a></li>
+        <li><a href="/cart" class="relative inline-block hover:text-blue-500">Cart
+          <% if(user?.totalItems) { %>
+            <span id="cartCount" class="absolute -top-2 -right-4 flex h-5 w-5 items-center justify-center
+              rounded-full bg-red-500 text-xs font-bold text-white">
+              <%= user?.totalItems %>                       
+            </span>
+          <% } %>         
+          </a></li>
+
+
+            
         <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
 
         <% if (user) { %>
@@ -62,26 +72,32 @@
       </ul>
     </div>
   </nav>
+  <% } %>
 
   <!-- 🌟 Page Header -->
-  <header class="bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-center py-16 mt-16 shadow-md overflow-x-hidden">
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-2">Our Menu</h1>
-    <p class="text-lg md:text-xl font-light">Discover delicious dishes from our kitchen</p>
-  </header>
-  <% } %>
+<% if (typeof hidePageHeader === 'undefined' || !hidePageHeader) { %>
+<header class="bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-center py-16 mt-16 shadow-md overflow-x-hidden">
+  <h1 class="text-4xl md:text-5xl font-extrabold mb-2">Our Menu</h1>
+  <p class="text-lg md:text-xl font-light">
+    Discover delicious dishes from our kitchen
+  </p>
+</header>
+<% } %>
+
 
   <!-- 🧩 Page Content -->
   <main class="container mx-auto px-4 py-6 overflow-x-hidden">
     <%- body -%>
   </main>
 
-  <% if (typeof hideLayoutParts === 'undefined' || !hideLayoutParts) { %>
   <!-- ⚓ Footer -->
-  <footer class="bg-gray-900 text-gray-300 text-center py-6 mt-10 overflow-x-hidden">
-    <p>© <%= new Date().getFullYear() %> digg it!! — All rights reserved.</p>
-    <p class="text-sm mt-1">Crafted with ❤️ by the digg it!! team</p>
-  </footer>
-  <% } %>
+ <% if (typeof hideLayoutParts === 'undefined' || !hideLayoutParts) { %>
+<footer class="bg-gray-900 text-gray-300 text-center py-6 mt-10 overflow-x-hidden">
+  <p>© <%= new Date().getFullYear() %> digg it!! — All rights reserved.</p>
+  <p class="text-sm mt-1">Crafted with ❤️ by the digg it!! team</p>
+</footer>
+<% } %>
+
 
   <script>
     // Mobile menu toggle

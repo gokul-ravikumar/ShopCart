@@ -1,4 +1,5 @@
 require("dotenv").config();
+const loadCartItemCount = require("./middlewares/cartMiddleware");
 const express = require("express");
 const app = express();
 const session = require("express-session");
@@ -30,14 +31,11 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
-  })
+  }),
 );
 
 // ✅ 5.5️⃣ Make session user available in all EJS views
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
-});
+app.use(loadCartItemCount);
 
 // 6️⃣ Connect to MongoDB
 mongoose

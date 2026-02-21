@@ -199,7 +199,7 @@ const verifyOTP = async (req, res) => {
 
 const checkUser = async (req, res) => {
   const { phone } = req.body;
- 
+
   const user = await User.findOne({ phone });
 
   if (!user) {
@@ -339,7 +339,7 @@ const addToCartProduct = async (req, res) => {
     const newCart = new Cart(data);
     console.log(newCart);
     await newCart.save();
-  } else {   
+  } else {
     function checkingProductInCart(productId, data) {
       for (let i = 0; i <= data.items.length - 1; i++) {
         if (data.items[i].productId.toString() === productId) {
@@ -367,13 +367,19 @@ const addToCartProduct = async (req, res) => {
     } else {
       // Add this new product in the user cart with qnty 1
       const newProduct = { productId, quantity: 1 };
-      console.log("uiiiii");
       userCart.items.push(newProduct);
-      console.log("saved the product")
+      console.log("saved the product");
       await userCart.save();
     }
   }
-  res.redirect(`/product/${productId}`);
+
+  const totalItems = await Cart.aggregate([
+    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+    { $unwind: "$items" },
+    { $group: { _id: null, total: { $sum: "$items.quantity" } } },
+  ]);
+  const count = totalItems[0]?.total || 0;
+  res.json({ success: true, newCartItemCount: count });
 };
 
 // Logout

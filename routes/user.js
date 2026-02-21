@@ -67,7 +67,7 @@ router.get("/cart", userAuth.checkUserSession, controllers.cart);
 router.post(
   "/addToCart",
   userAuth.checkUserSession,
-  controllers.addToCartProduct
+  controllers.addToCartProduct,
 );
 
 // Logout
