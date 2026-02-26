@@ -36,13 +36,7 @@ app.use(
 
 // ✅ 5.5️⃣ Make session user available in all EJS views
 app.use(loadCartItemCount);
-
-// 6️⃣ Connect to MongoDB
-mongoose
-  .connect("mongodb://127.0.0.1:27017/ShopCart")
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ DB Connection Error:", err));
-
+ 
 // 7️⃣ Routes
 const userRoutes = require("./routes/user");
 const productRoutes = require("./routes/product");
@@ -54,6 +48,12 @@ app.get("/", homeRouteUser);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use("/product", productRoutes);
+
+// 6️⃣ Connect to MongoDB
+mongoose
+  .connect("mongodb://127.0.0.1:27017/ShopCart")
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.error("❌ DB Connection Error:", err));
 
 // 8️⃣ Start server
 const PORT = process.env.PORT || 8080;
