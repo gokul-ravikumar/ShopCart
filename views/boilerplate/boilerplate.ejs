@@ -23,7 +23,7 @@
       <ul class="hidden md:flex space-x-6 items-center">
         <li><a href="/" class="hover:text-blue-500">Home</a></li>
         <li><a href="/products" class="hover:text-blue-500">Products</a></li>
-        <li><a href="/cart" class="relative inline-block hover:text-blue-500">Cart
+        <li><a href="/user/cart" class="relative inline-block hover:text-blue-500">Cart
           <% if(user?.totalItems) { %>
             <span id="cartCount" class="absolute -top-2 -right-4 flex h-5 w-5 items-center justify-center
               rounded-full bg-red-500 text-xs font-bold text-white">
@@ -31,8 +31,6 @@
             </span>
           <% } %>         
           </a></li>
-
-
             
         <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>
 
@@ -92,7 +90,7 @@
   </main>
 
   <!-- ⚓ Footer -->
- <% if (typeof hideLayoutParts === 'undefined' || !hideLayoutParts) { %>
+ <% if ((typeof hideLayoutParts === 'undefined' || !hideLayoutParts) && hidePageFooter !== true) { %>
 <footer class="bg-gray-900 text-gray-300 text-center py-6 mt-10 overflow-x-hidden">
   <p>© <%= new Date().getFullYear() %> digg it!! — All rights reserved.</p>
   <p class="text-sm mt-1">Crafted with ❤️ by the digg it!! team</p>

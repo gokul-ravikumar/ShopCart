@@ -1,5 +1,6 @@
 const getCartItemCount = require("../helpers/cartHelper");
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
@@ -318,8 +319,32 @@ const changePassword = async (req, res) => {
 };
 
 //cart
-const cart = (req, res) => {
-  res.render("user/cart", { message: "welcome to cart" });
+const cart = async (req, res) => {
+  const userId = req.session.user.id;
+  const cartProducts = await Cart.findOne({ userId }).populate(
+    "items.productId",
+  ); 
+  console.log("cartProduct", cartProducts);
+
+    let subtotal = 0;
+  if (cartProducts && cartProducts.items.length > 0) {
+    cartProducts.items.forEach(item => {
+      subtotal += item.productId.price * item.quantity;
+    });
+  }
+  const shipping = 100; // example
+  const tax = subtotal * 0.05; // 5% tax
+  const total = subtotal + shipping + tax;
+
+  res.render("user/cart", {
+    cartProducts,
+    subtotal,
+    shipping,
+    tax,
+    total,
+    hidePageFooter: true,
+    hidePageHeader: true,
+  });
 };
 
 //add to cart

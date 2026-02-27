@@ -61,7 +61,7 @@ router.get("/reset-password", (req, res) => {
 router.post("/reset-password", changePassword);
 
 //cart
-router.get("/cart", userAuth.checkUserSession, controllers.cart);
+router.get("/cart",userAuth.checkUserSession,controllers.cart);
 
 //add to cart
 router.post(
