@@ -23,9 +23,15 @@
             Rs.<%= item.productId.price %>
           </p>
 
-          <p class="text-gray-500">
-            Quantity: <%= item.quantity %>
-          </p>
+          <div class="flex gap-1">
+            <div class="text-gray-500">
+            Quantity:
+            <div class="flex w-fit items-center gap-1 mt-1">
+            <button class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer">-</button> 
+                <%= item.quantity %>
+             <button class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer">+</button>
+          </div>
+        </div>
         </div>
 
         <!-- Right Image -->
@@ -77,6 +83,7 @@
   <button class="w-full bg-black text-white py-2 rounded-lg">
     Checkout
   </button>
+   <script src="/script/quantity.js"></script>
 
 </div>
 

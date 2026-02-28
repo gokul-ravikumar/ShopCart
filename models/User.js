@@ -22,7 +22,7 @@ const userSchema = new Schema(
         validator: (v) => /^\+?[0-9\s\-()]{7,20}$/.test(v),
         message: (props) => `${props.value} is not a valid phone number!`,
       },
-      required: true
+      required: true,
     },
 
     password: {
@@ -41,7 +41,7 @@ const userSchema = new Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 ); // ✅ this line automatically adds createdAt & updatedAt
 
 // 🔒 Hash password before saving
