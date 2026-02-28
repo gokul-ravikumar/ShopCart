@@ -3,35 +3,38 @@
 <!-- Title -->
 <div class="flex justify-center font-[fantasy] mt-10 text-3xl font-bold">
   SHOPPING CART
-</div
->
-  <div class="flex gap-10 max-w-6xl mx-auto mt-10 items-start">
-    <div class="flex-1 space-y-6">
-  <% if (cartProducts && cartProducts.items.length > 0) { %>
+</div>
+<div class="flex gap-10 max-w-6xl mx-auto mt-10 items-start">
+  <div class="flex-1 space-y-6">
+    <% if (cartProducts && cartProducts.items.length > 0) { %> <% for (let item
+    of cartProducts.items) { %>
 
-    <% for (let item of cartProducts.items) { %>
+    <div
+      class="flex justify-between items-center border p-5 mt-6 rounded-lg shadow"
+    >
+      <!-- Left Details -->
+      <div>
+        <h2 class="text-xl font-semibold"><%= item.productId.title %></h2>
 
-      <div class="flex justify-between items-center border p-5 mt-6 rounded-lg shadow">
+        <p class="text-gray-600">Rs.<%= item.productId.price %></p>
 
-        <!-- Left Details -->
-        <div>
-          <h2 class="text-xl font-semibold">
-            <%= item.productId.title %>
-          </h2>
-
-          <p class="text-gray-600">
-            Rs.<%= item.productId.price %>
-          </p>
-
-          <div class="flex gap-1">
-            <div class="text-gray-500">
+        <div class="flex gap-1">
+          <div class="text-gray-500">
             Quantity:
             <div class="flex w-fit items-center gap-1 mt-1">
-            <button class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer">-</button> 
-                <%= item.quantity %>
-             <button class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer">+</button>
+              <button
+                class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer"
+              >
+                -
+              </button>
+              <%= item.quantity %>
+              <button
+                class="border shadow flex justify-center items-center bg-gray-300 rounded-sm text-sm leading-none h-5 w-5 cursor-pointer"
+              >
+                +
+              </button>
+            </div>
           </div>
-        </div>
         </div>
 
         <!-- Right Image -->
@@ -40,52 +43,44 @@
           alt=""
           class="w-32 h-32 object-cover rounded-lg"
         />
-
       </div>
 
-    <% } %>
+      <% } %> <% } else { %>
 
-  <% } else { %>
+      <p class="mt-10 text-gray-500 text-center">Your cart is empty</p>
 
-    <p class="mt-10 text-gray-500 text-center">
-      Your cart is empty
-    </p>
+      <% } %>
+    </div>
 
-  <% } %>
+    <div class="w-96 rounded-lg shadow p-6 mt-5 bg-white sticky top-24">
+      <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
 
+      <div class="flex justify-between text-gray-600 mb-2">
+        <span>Subtotal</span>
+        <span>₹ <%= subtotal.toFixed(2) %></span>
+      </div>
+
+      <div class="flex justify-between text-gray-600 mb-2">
+        <span>Shipping</span>
+        <span>₹ <%= shipping.toFixed(2) %></span>
+      </div>
+
+      <div class="flex justify-between text-gray-600 mb-4">
+        <span>Tax</span>
+        <span>₹ <%= tax.toFixed(2) %></span>
+      </div>
+
+      <hr class="mb-4" />
+
+      <div class="flex justify-between font-semibold text-lg mb-4">
+        <span>Total</span>
+        <span>₹ <%= total.toFixed(2) %></span>
+      </div>
+
+      <button class="w-full bg-black text-white py-2 rounded-lg">
+        Checkout
+      </button>
+      <script src="/script/quantity.js"></script>
+    </div>
+  </div>
 </div>
-
-<div class="w-96 rounded-lg shadow p-6 mt-5 bg-white sticky top-24">
-  <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
-
-  <div class="flex justify-between text-gray-600 mb-2">
-    <span>Subtotal</span>
-    <span>₹ <%= subtotal.toFixed(2) %></span>
-  </div>
-
-  <div class="flex justify-between text-gray-600 mb-2">
-    <span>Shipping</span>
-    <span>₹ <%= shipping.toFixed(2) %></span>
-  </div>
-
-  <div class="flex justify-between text-gray-600 mb-4">
-    <span>Tax</span>
-    <span>₹ <%= tax.toFixed(2) %></span>
-  </div>
-
-  <hr class="mb-4">
-
-  <div class="flex justify-between font-semibold text-lg mb-4">
-    <span>Total</span>
-    <span>₹ <%= total.toFixed(2) %></span>
-  </div>
-
-  <button class="w-full bg-black text-white py-2 rounded-lg">
-    Checkout
-  </button>
-   <script src="/script/quantity.js"></script>
-
-</div>
-
-</div>
-
