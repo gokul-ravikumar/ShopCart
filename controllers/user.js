@@ -323,12 +323,12 @@ const cart = async (req, res) => {
   const userId = req.session.user.id;
   const cartProducts = await Cart.findOne({ userId }).populate(
     "items.productId",
-  ); 
+  );
   console.log("cartProduct", cartProducts);
 
-    let subtotal = 0;
+  let subtotal = 0;
   if (cartProducts && cartProducts.items.length > 0) {
-    cartProducts.items.forEach(item => {
+    cartProducts.items.forEach((item) => {
       subtotal += item.productId.price * item.quantity;
     });
   }
@@ -353,6 +353,7 @@ const addToCartProduct = async (req, res) => {
   const productId = req.body.productId;
 
   const userCart = await Cart.findOne({ userId });
+  let newQuantity = 1; // default 1 for new cart
 
   if (!userCart) {
     const data = {
@@ -361,7 +362,6 @@ const addToCartProduct = async (req, res) => {
     };
     console.log("DATA =>", data);
     const newCart = new Cart(data);
-    console.log(newCart);
     await newCart.save();
   } else {
     function checkingProductInCart(productId, data) {
@@ -373,20 +373,16 @@ const addToCartProduct = async (req, res) => {
       return false;
     }
     const isProductAvail = checkingProductInCart(productId, userCart);
-
     if (isProductAvail) {
-      // store the qnty to a vairable
       for (let i = 0; i <= userCart.items.length - 1; i++) {
         if (userCart.items[i].productId.toString() === productId) {
           userCart.items[i].quantity += 1;
+          newQuantity = userCart.items[i].quantity; // capture updated qty
           break;
         }
       }
       await userCart.save();
-
-      // update the cart with new qnty
     } else {
-      // Add this new product in the user cart with qnty 1
       const newProduct = { productId, quantity: 1 };
       userCart.items.push(newProduct);
       console.log("saved the product");
@@ -395,7 +391,62 @@ const addToCartProduct = async (req, res) => {
   }
 
   const count = await getCartItemCount(userId);
-  res.status(201).json({ success: true, newCartItemCount: count });
+
+  const cartProducts = await Cart.findOne({ userId }).populate(
+    "items.productId",
+  );
+
+  let subtotal = 0;
+  if (cartProducts && cartProducts.items.length > 0) {
+    cartProducts.items.forEach((item) => {
+      subtotal += item.productId.price * item.quantity;
+    });
+  }
+  const shipping = 100; // example
+  const tax = subtotal * 0.05; // 5% tax
+  const total = subtotal + shipping + tax;
+
+  res.status(201).json({ success: true, newQuantity, newCartItemCount: count, shipping, subtotal, tax, total }); // ✅ added newQuantity
+};
+
+//decrementing
+const decrementCartProduct = async (req, res) => {
+  const userId = req.session.user.id;
+  const productId = req.body.productId;
+
+  const userCart = await Cart.findOne({ userId });
+
+  let newQuantity = 0; // default 0 means item got deleted
+
+  for (let i = 0; i <= userCart.items.length - 1; i++) {
+    if (userCart.items[i].productId.toString() === productId) {
+      if (userCart.items[i].quantity > 1) {
+        userCart.items[i].quantity -= 1;
+        newQuantity = userCart.items[i].quantity; // capture updated qty
+      } else {
+        userCart.items.splice(i, 1); // newQuantity stays 0
+      }
+      break;
+    }
+  }
+
+  await userCart.save();
+
+  const count = await getCartItemCount(userId);
+  const cartProducts = await Cart.findOne({ userId }).populate(
+    "items.productId",
+  );
+
+    let subtotal = 0;
+  if (cartProducts && cartProducts.items.length > 0) {
+    cartProducts.items.forEach((item) => {
+      subtotal += item.productId.price * item.quantity;
+    });
+  }
+  const shipping = 100; // example
+  const tax = subtotal * 0.05; // 5% tax
+  const total = subtotal + shipping + tax;
+  res.status(200).json({ success: true, newQuantity, newCartItemCount: count, shipping, subtotal, tax, total });
 };
 
 // Logout
@@ -423,5 +474,6 @@ module.exports = {
   changePassword,
   cart,
   addToCartProduct,
+  decrementCartProduct,
   logout,
 };

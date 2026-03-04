@@ -26,10 +26,15 @@
         <li><a href="/user/cart" class="relative inline-block hover:text-blue-500">Cart
           <% if(user?.totalItems) { %>
             <span id="cartCount" class="absolute -top-2 -right-4 flex h-5 w-5 items-center justify-center
-              rounded-full bg-red-500 text-xs font-bold text-white">
+              rounded-full bg-red-500 text-xs font-bold text-white" style="display:flex">
               <%= user?.totalItems %>                       
             </span>
-          <% } %>         
+          <% } else {%> 
+            <span id="cartCount" class="absolute -top-2 -right-4 flex h-5 w-5 items-center justify-center
+              rounded-full bg-red-500 text-xs font-bold text-white" style="display:none">
+              <%= user?.totalItems %>                       
+            </span>
+            <% } %>        
           </a></li>
             
         <li><a href="/contact" class="hover:text-blue-500">Contact</a></li>

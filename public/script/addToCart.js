@@ -15,6 +15,10 @@ addToCartButton.onclick = async () => {
 
   try {
     const data = await response.json();
+    const cartBadge = document.querySelector("#cartCount");
+    cartBadge.innerText = data.newCartItemCount;
+    cartBadge.style.display = "flex";
+
     if (data.success === true) {
       Swal.fire({
         title: "Success!",
@@ -25,6 +29,7 @@ addToCartButton.onclick = async () => {
     }
   } catch (error) {
     // Swal for tell to login for add to cart
+    console.error(error);
     Swal.fire({
       title: "Login Required",
       text: "Please login to continue",
@@ -35,7 +40,7 @@ addToCartButton.onclick = async () => {
       confirmButtonText: "Login",
     }).then((result) => {
       if (result.isConfirmed) {
-         window.location.href = "/user/login";
+        window.location.href = "/user/login";
       }
     });
   }

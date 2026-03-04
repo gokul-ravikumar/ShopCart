@@ -61,13 +61,20 @@ router.get("/reset-password", (req, res) => {
 router.post("/reset-password", changePassword);
 
 //cart
-router.get("/cart",userAuth.checkUserSession,controllers.cart);
+router.get("/cart", userAuth.checkUserSession, controllers.cart);
 
 //add to cart
 router.post(
   "/addToCart",
   userAuth.checkUserSession,
   controllers.addToCartProduct,
+);
+
+// quantity operation( decrementing quantity , incrementing already in add to cart route --above--)
+router.post(
+  "/decrementCart",
+  userAuth.checkUserSession,
+  controllers.decrementCartProduct,
 );
 
 // Logout
