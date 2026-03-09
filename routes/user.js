@@ -77,6 +77,15 @@ router.post(
   controllers.decrementCartProduct,
 );
 
+// Checkout (GET)
+router.get("/checkout", userAuth.checkUserSession, controllers.checkout);
+
+// Checkout (POST)
+router.post("/checkout", userAuth.checkUserSession, controllers.processCheckout);
+
+//my orders
+router.get("/myOrders", userAuth.checkUserSession, controllers.myOrders);
+
 // Logout
 router.get("/logout", userAuth.checkUserSession, controllers.logout);
 

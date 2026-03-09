@@ -1,0 +1,60 @@
+<% layout('boilerplate/boilerplate') %>
+
+<!-- Title -->
+<div class="flex justify-center font-[fantasy] mt-10 text-3xl font-bold">
+  SHOPPING CART
+</div>
+
+<div class="max-w-4xl mx-auto py-10">
+
+<h2 class="text-3xl font-semibold mb-6">My Orders</h2>
+
+<% orders.forEach(order => { %>
+
+<div class="border rounded-lg p-6 mb-6 bg-white shadow-sm">
+
+  <!-- Order Header -->
+  <div class="flex justify-between items-center mb-4">
+      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+        <%= order.orderStatus %>
+      </span>
+  </div>
+
+  <!-- Products -->
+  <% order.items.forEach(item => { %>
+
+  <div class="flex gap-4 items-center border-t pt-4 mt-4">
+
+      <img 
+        src="<%- item.productId.image[0].url %>" 
+        class="w-20 h-20 object-cover rounded-md"
+      >
+
+      <div class="flex-1">
+          <h4 class="font-medium text-gray-800">
+            <%= item.productId.title %>
+          </h4>
+
+          <p class="text-sm text-gray-500">
+            Price: ₹<%= item.productId.price %>
+          </p>
+
+          <p class="text-sm text-gray-500">
+            Quantity: <%= item.quantity %>
+          </p>
+      </div>
+
+      <a href="/product/<%= item.productId._id %>" 
+         class="text-sm text-blue-600 hover:underline">
+         View Product
+      </a>
+
+  </div>
+
+  <% }) %>
+
+</div>
+
+<% }) %>
+
+</div>

@@ -1,6 +1,6 @@
 const getCartItemCount = require("../helpers/cartHelper");
 const Cart = require("../models/Cart");
-const Product = require("../models/Product");
+const Order = require("../models/Order");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
@@ -449,6 +449,163 @@ const decrementCartProduct = async (req, res) => {
   res.status(200).json({ success: true, newQuantity, newCartItemCount: count, shipping, subtotal, tax, total });
 };
 
+// Checkout page (GET)
+const checkout = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const user = await User.findById(userId);
+    const cartProducts = await Cart.findOne({ userId }).populate(
+      "items.productId",
+    );
+
+    if (!cartProducts || cartProducts.items.length === 0) {
+      return res.redirect("/product/cart");
+    }
+
+    // Calculate totals
+    let subtotal = 0;
+    cartProducts.items.forEach((item) => {
+      subtotal += item.productId.price * item.quantity;
+    });
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    res.render("user/checkout", {
+      cartProducts,
+      user,
+      subtotal,
+      shipping,
+      tax,
+      total,
+      message: null,
+      messageType: null,
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  } catch (error) {
+    console.error("Checkout error:", error);
+    res.render("user/checkout", {
+      cartProducts: null,
+      user: null,
+      subtotal: 0,
+      shipping: 0,
+      tax: 0,
+      total: 0,
+      message: "An error occurred while loading checkout page",
+      messageType: "error",
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  }
+};
+
+// Process checkout (POST)
+const processCheckout = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { name, email, phone, street, city, state, zipCode, country, paymentMethod } = req.body;
+
+    // Fetch cart items
+    const cartProducts = await Cart.findOne({ userId }).populate(
+      "items.productId",
+    );
+
+    if (!cartProducts || cartProducts.items.length === 0) {
+      return res.redirect("/product/cart");
+    }
+
+    // Prepare order items
+    const orderItems = cartProducts.items.map((item) => ({
+      productId: item.productId._id,
+      title: item.productId.title,
+      quantity: item.quantity,
+      price: item.productId.price,
+    }));
+
+    // Calculate totals
+    let subtotal = 0;
+    orderItems.forEach((item) => {
+      subtotal += item.price * item.quantity;
+    });
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    // Create order
+    const Order = require("../models/Order");
+    const order = new Order({
+      userId,
+      customerInfo: { name, email, phone },
+      address: { street, city, state, zipCode, country },
+      items: orderItems,
+      subtotal,
+      shipping,
+      tax,
+      totalAmount: total,
+      paymentMethod,
+      orderStatus: "pending",
+    });
+
+    await order.save();
+
+    // Clear cart
+    await Cart.updateOne({ userId }, { items: [] });
+
+    // Render success message
+    res.render("user/checkout", {
+      cartProducts: null,
+      user: null,
+      subtotal: 0,
+      shipping: 0,
+      tax: 0,
+      total: 0,
+      message: "Order placed successfully!",
+      messageType: "success",
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  } catch (error) {
+    console.error("Checkout error:", error);
+    const userId = req.session.user.id;
+    const cartProducts = await Cart.findOne({ userId }).populate(
+      "items.productId",
+    );
+
+    let subtotal = 0;
+    if (cartProducts && cartProducts.items.length > 0) {
+      cartProducts.items.forEach((item) => {
+        subtotal += item.productId.price * item.quantity;
+      });
+    }
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    res.render("user/checkout", {
+      cartProducts,
+      user: await User.findById(userId),
+      subtotal,
+      shipping,
+      tax,
+      total,
+      message: "Error processing checkout. Please try again.",
+      messageType: "error",
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  }
+};
+
+//my orders
+const myOrders = async (req, res) => {
+  const userId = req.session.user.id;
+  const orders  = await Order.find({ userId }).populate(
+    "items.productId",
+  );
+  res.render("user/my-orders", { orders, hidePageHeader: true, hidePageFooter: true });
+}
+
 // Logout
 const logout = (req, res) => {
   req.session.destroy((err) => {
@@ -473,7 +630,10 @@ module.exports = {
   verifyOtpForgot,
   changePassword,
   cart,
+  checkout,
+  processCheckout,
   addToCartProduct,
   decrementCartProduct,
+  myOrders,
   logout,
 };

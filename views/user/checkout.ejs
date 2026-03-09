@@ -1,0 +1,312 @@
+<% layout('boilerplate/boilerplate') %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- Title -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 font-[fantasy]">CHECKOUT</h1>
+    </div>
+
+    <!-- Message Alert -->
+    <% if (message) { %>
+      <div class="mb-6 max-w-2xl">
+        <% if (messageType === 'success') { %>
+          <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+            <p class="font-semibold"><%= message %></p>
+            <p class="text-sm mt-2">Your order has been placed successfully. Thank you for shopping with us!</p>
+            <a href="/product" class="text-green-700 underline hover:text-green-900 mt-2 inline-block">Continue Shopping</a>
+          </div>
+        <% } else { %>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <p class="font-semibold"><%= message %></p>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if (!message || messageType !== 'success') { %>
+    <form id="checkoutForm" method="POST" action="/user/checkout" class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <!-- Left Column: Customer Info & Address -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Customer Information Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center mr-3">1</span>
+            Customer Information
+          </h2>
+
+          <div class="space-y-4">
+            <!-- Name Field -->
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                <% if (user && user.name) { %>value="<%= user.name %>"<% } %>
+                required
+              />
+              <span class="text-red-600 text-sm hidden" id="nameError"></span>
+            </div>
+
+            <!-- Email Field -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                <% if (user && user.email) { %>value="<%= user.email %>"<% } %>
+                required
+              />
+              <span class="text-red-600 text-sm hidden" id="emailError"></span>
+            </div>
+
+            <!-- Phone Field -->
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                <% if (user && user.phone) { %>value="<%= user.phone %>"<% } %>
+                placeholder="+1 (555) 123-4567"
+                required
+              />
+              <span class="text-red-600 text-sm hidden" id="phoneError"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Address Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center mr-3">2</span>
+            Shipping Address
+          </h2>
+
+          <div class="space-y-4">
+            <!-- Street Address -->
+            <div>
+              <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Street Address *</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="123 Main Street"
+                required
+              />
+              <span class="text-red-600 text-sm hidden" id="streetError"></span>
+            </div>
+
+            <!-- City and ZIP Code Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="New York"
+                  required
+                />
+                <span class="text-red-600 text-sm hidden" id="cityError"></span>
+              </div>
+              <div>
+                <label for="zipCode" class="block text-sm font-medium text-gray-700 mb-1">ZIP Code *</label>
+                <input
+                  type="text"
+                  id="zipCode"
+                  name="zipCode"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="10001"
+                  required
+                />
+                <span class="text-red-600 text-sm hidden" id="zipCodeError"></span>
+              </div>
+            </div>
+
+            <!-- State and Country Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Province *</label>
+                <select
+                  id="state"
+                  name="state"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
+                >
+                  <option value="">Select State</option>
+                  <option value="CA">California</option>
+                  <option value="TX">Texas</option>
+                  <option value="NY">New York</option>
+                  <option value="FL">Florida</option>
+                  <option value="PA">Pennsylvania</option>
+                  <option value="IL">Illinois</option>
+                  <option value="OH">Ohio</option>
+                  <option value="GA">Georgia</option>
+                  <option value="NC">North Carolina</option>
+                  <option value="MI">Michigan</option>
+                  <option value="NJ">New Jersey</option>
+                  <option value="VA">Virginia</option>
+                  <option value="WA">Washington</option>
+                  <option value="AZ">Arizona</option>
+                  <option value="MA">Massachusetts</option>
+                  <option value="TN">Tennessee</option>
+                  <option value="IN">Indiana</option>
+                  <option value="MD">Maryland</option>
+                  <option value="MO">Missouri</option>
+                  <option value="WI">Wisconsin</option>
+                  <option value="CO">Colorado</option>
+                  <option value="MN">Minnesota</option>
+                  <option value="SC">South Carolina</option>
+                  <option value="AL">Alabama</option>
+                  <option value="LA">Louisiana</option>
+                  <option value="KY">Kentucky</option>
+                  <option value="OR">Oregon</option>
+                  <option value="OK">Oklahoma</option>
+                  <option value="CT">Connecticut</option>
+                </select>
+                <span class="text-red-600 text-sm hidden" id="stateError"></span>
+              </div>
+              <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
+                <select
+                  id="country"
+                  name="country"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
+                >
+                  <option value="">Select Country</option>
+                  <option value="United States" selected>United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="India">India</option>
+                  <option value="Mexico">Mexico</option>
+                  <option value="Japan">Japan</option>
+                  <option value="China">China</option>
+                </select>
+                <span class="text-red-600 text-sm hidden" id="countryError"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center mr-3">3</span>
+            Payment Method
+          </h2>
+
+          <div class="space-y-3">
+            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input type="radio" name="paymentMethod" value="COD" class="w-4 h-4 text-orange-600" required />
+              <span class="ml-3 text-gray-700 font-medium">COD</span>
+            </label>
+
+            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input type="radio" name="paymentMethod" value="OnLine" class="w-4 h-4 text-orange-600" required />
+              <span class="ml-3 text-gray-700 font-medium">OnLine</span>
+            </label>
+
+            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input type="radio" name="paymentMethod" value="Debit Card" class="w-4 h-4 text-orange-600" required />
+              <span class="ml-3 text-gray-700 font-medium">Debit Card</span>
+            </label>
+
+            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input type="radio" name="paymentMethod" value="Credit Card" class="w-4 h-4 text-orange-600" required />
+              <span class="ml-3 text-gray-700 font-medium">Credit Card</span>
+            </label>
+
+            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input type="radio" name="paymentMethod" value="UPI" class="w-4 h-4 text-orange-600" required />
+              <span class="ml-3 text-gray-700 font-medium">UPI</span>
+            </label>
+
+            <span class="text-red-600 text-sm hidden block" id="paymentError"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary (Sticky) -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 sticky top-24">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+
+          <!-- Cart Items -->
+          <div class="mb-6 pb-6 border-b border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">Items in Cart</h3>
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+              <% if (cartProducts && cartProducts.items.length > 0) { %>
+                <% cartProducts.items.forEach((item) => { %>
+                  <div class="flex justify-between items-start text-sm">
+                    <div>
+                      <p class="text-gray-900 font-medium"><%= item.productId.title %></p>
+                      <p class="text-gray-600">Qty: <%= item.quantity %></p>
+                    </div>
+                    <p class="text-gray-900 font-medium">₹<%= (item.productId.price * item.quantity).toFixed(2) %></p>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Price Breakdown -->
+          <div class="space-y-3 mb-4">
+            <div class="flex justify-between text-gray-700">
+              <span>Subtotal</span>
+              <span>₹<%= subtotal.toFixed(2) %></span>
+            </div>
+
+            <div class="flex justify-between text-gray-700">
+              <span>Shipping</span>
+              <span>₹<%= shipping.toFixed(2) %></span>
+            </div>
+
+            <div class="flex justify-between text-gray-700">
+              <span>Tax (5%)</span>
+              <span>₹<%= tax.toFixed(2) %></span>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <!-- Total -->
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-xl font-bold text-gray-900">Total</span>
+            <span class="text-3xl font-bold text-orange-600">₹<%= total.toFixed(2) %></span>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2"
+          >
+            <span>Place Order</span>
+            <span>→</span>
+          </button>
+
+          <!-- Secure Payment Badge -->
+          <div class="mt-4 text-center">
+            <p class="text-xs text-gray-600 flex items-center justify-center gap-1">
+              🔒 Secure Payment
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+    <% } %>
+  </div>
+</div>
+
+<script src="/script/checkoutValidation.js"></script>
