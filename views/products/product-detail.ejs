@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= product.title %> | ShopCart</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/drift-zoom/dist/drift-basic.min.css"
+    />
+    <script src="https://unpkg.com/drift-zoom/dist/Drift.min.js"></script>
   </head>
 
   <body class="bg-gray-50 text-gray-900 font-inter min-h-screen">
@@ -16,7 +21,7 @@
         href="/product"
         class="inline-block mb-6 text-gray-600 hover:text-blue-600 transition"
       >
-       Back to Products
+        Back to Products
       </a>
 
       <!-- Product Layout -->
@@ -24,9 +29,11 @@
         class="bg-white rounded-2xl shadow-md p-8 flex flex-col md:flex-row gap-8"
       >
         <!-- Left: Image -->
-        <div class="md:w-1/2 flex justify-center items-center">
+        <div id="zoomPicture" class="md:w-1/2 flex justify-center items-center">
           <img
+            id="productImage"
             src="<%- product.image[0].url %>"
+            data-zoom="<%- product.image[0].url %>"
             alt="<%- product.image[0].filename %>"
             class="rounded-lg w-full h-auto object-cover shadow-sm"
           />
@@ -77,5 +84,13 @@
         </div>
       </div>
     </div>
+    <script>
+      const zoomImage = document.querySelector("#productImage");
+
+      new Drift(zoomImage, {
+        inlinePane: true,
+        zoomFactor: 2,
+      });
+    </script>
   </body>
 </html>
