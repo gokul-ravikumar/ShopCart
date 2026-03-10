@@ -3,10 +3,9 @@ const shipping = document.querySelector("#shipping");
 const tax = document.querySelector("#tax");
 const total = document.querySelector("#total");
 const cartBadge = document.querySelector("#cartCount");
-const orderSummary = document.querySelector("#orderSummary")
+const orderSummary = document.querySelector("#orderSummary");
 
 async function changeCartQnty(productId, operation) {
-
   if (operation === "INC") {
     const response = await fetch("/user/addToCart", {
       method: "POST",
@@ -73,10 +72,12 @@ async function changeCartQnty(productId, operation) {
         // If quantity hit 0, optionally remove the item from UI
         if (data.newQuantity === 0) {
           document.querySelector(`#cartItem_${productId}`).remove();
-          cartBadge.style.display = "none"
-          orderSummary.remove()
-          document.querySelector("#cartEmptyText").style.display = "block";
 
+          if (data.newCartItemCount === 0) {
+            cartBadge.style.display = "none";
+            orderSummary.remove();
+            document.querySelector("#cartEmptyText").style.display = "block";
+          }
         }
       }
     } catch (error) {
