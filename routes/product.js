@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // ➕ Create new product
-router.post("/", upload.array("product[images][]", 5), async (req, res) => {
+router.post("/", upload.array("images", 5), async (req, res) => {
   try {
     const { product } = req.body;
 
@@ -47,9 +47,10 @@ router.post("/", upload.array("product[images][]", 5), async (req, res) => {
       ...product,
       image: req.files.map((obj) => ({
         filename: obj.filename,
-        url: obj.path,
+        url: `/uploads/${obj.filename}`,
       })),
     });
+    console.log("obj",obj)
 
     await newProduct.save();
     console.log("✅ New product saved:", newProduct);

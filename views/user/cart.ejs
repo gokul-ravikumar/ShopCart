@@ -8,6 +8,7 @@
   <div class="flex-1 space-y-6">
     <% if (cartProducts && cartProducts.items.length > 0) { %> 
       <% for (let item of cartProducts.items) { %>
+        <% if (item.productId) { %>
 
     <div id="cartItem_<%=item.productId._id%>"
       class="flex justify-between items-center border p-5 mt-6 rounded-lg shadow"
@@ -45,6 +46,7 @@
         />
       </div>
 
+      <% } %> 
       <% } %> 
     <% } %>
 

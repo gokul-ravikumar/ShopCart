@@ -43,7 +43,7 @@ router.get("/user/add", controllers.loadAddUserForm);
 // Product Management
 router.get("/product/add", controllers.addProductForm);
 
-router.post("/product/add", upload.array("image", 5), controllers.addProduct);
+router.post("/product/add", upload.array("images", 5), controllers.addProduct);
 
 // ✅ To view the edit page
 router.get("/product/edit/:id", controllers.getEditProduct);
@@ -51,7 +51,7 @@ router.get("/product/edit/:id", controllers.getEditProduct);
 // ✅ To handle form submission (update product)
 router.post(
   "/product/edit/:id",
-  upload.array("image", 5),
+  upload.array("images", 5),
   controllers.postEditProduct,
 );
 

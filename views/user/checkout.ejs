@@ -249,6 +249,7 @@
             <div class="space-y-3 max-h-64 overflow-y-auto">
               <% if (cartProducts && cartProducts.items.length > 0) { %>
                 <% cartProducts.items.forEach((item) => { %>
+                    <% if (item.productId) { %>
                   <div class="flex justify-between items-start text-sm">
                     <div>
                       <p class="text-gray-900 font-medium"><%= item.productId.title %></p>
@@ -256,8 +257,9 @@
                     </div>
                     <p class="text-gray-900 font-medium">₹<%= (item.productId.price * item.quantity).toFixed(2) %></p>
                   </div>
-                <% }) %>
-              <% } %>
+                <% } %>
+              <% }) %>
+            <% } %>
             </div>
           </div>
 

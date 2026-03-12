@@ -2,6 +2,8 @@ const Admin = require("../models/adminModel");
 const User = require("../models/User"); // make sure this path is correct
 const Product = require("../models/Product");
 const bcrypt = require("bcrypt"); // Needed for login comparison
+const path = require("path");
+const fs = require("fs");
 
 const useCloudinary = process.env.USE_CLOUDINARY === "true";
 
@@ -56,7 +58,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const admin = await Admin.findOne({ email });
-    
+
     if (!admin) {
       return res.render("admin/login", { message: "Invalid credentials" });
     }
@@ -246,13 +248,13 @@ const addProduct = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       if (useCloudinary) {
-        // 🟢 Cloudinary uploads (use f.path → Cloudinary URL)
+        // Cloudinary
         images = req.files.map((file) => ({
           filename: file.filename,
-          url: file.path,
+          url: file.path, // Cloudinary URL
         }));
       } else {
-        // 🟡 Local uploads (served via /uploads/)
+        // Local uploads
         images = req.files.map((file) => ({
           filename: file.filename,
           url: `/uploads/${file.filename}`,
@@ -304,41 +306,39 @@ const getEditProduct = async (req, res) => {
 const postEditProduct = async (req, res) => {
   try {
     const { title, description, price, stock, category } = req.body;
+
     const product = await Product.findById(req.params.id);
 
-    if (!product) return res.status(404).send("Product not found");
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
 
-    // Update basic fields
+    // Update fields
     product.title = title;
     product.description = description;
     product.price = price;
     product.stock = stock;
     product.category = category;
 
-    // ✅ Replace images if new ones are uploaded
+    // If new images uploaded
     if (req.files && req.files.length > 0) {
-      // Optional: delete old local images (if you store locally)
+      // delete old images
       product.image.forEach((img) => {
-        try {
-          const filePath = path.join(
-            __dirname,
-            "../uploads",
-            path.basename(img.url)
-          );
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        } catch (err) {
-          console.warn("Could not delete old image:", err.message);
+        const filePath = path.join(__dirname, "../uploads", img.filename);
+
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
         }
       });
 
-      // Save new image URLs
+      // save new images
       product.image = req.files.map((file) => ({
-        filename: file.filename,
-        url: `/uploads/${file.filename}`,
+        filename: file.filename, // Cloudinary public_id
+        url: file.path, // Cloudinary image URL
       }));
     }
-
     await product.save();
+
     res.redirect("/admin/product");
   } catch (error) {
     console.error(error);

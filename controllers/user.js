@@ -329,7 +329,9 @@ const cart = async (req, res) => {
   let subtotal = 0;
   if (cartProducts && cartProducts.items.length > 0) {
     cartProducts.items.forEach((item) => {
-      subtotal += item.productId.price * item.quantity;
+      if (item.productId) {
+        subtotal += item.productId.price * item.quantity;
+      }
     });
   }
   const shipping = 100; // example
@@ -399,14 +401,24 @@ const addToCartProduct = async (req, res) => {
   let subtotal = 0;
   if (cartProducts && cartProducts.items.length > 0) {
     cartProducts.items.forEach((item) => {
-      subtotal += item.productId.price * item.quantity;
+      if (item.productId) {
+        subtotal += item.productId.price * item.quantity;
+      }
     });
   }
   const shipping = 100; // example
   const tax = subtotal * 0.05; // 5% tax
   const total = subtotal + shipping + tax;
 
-  res.status(201).json({ success: true, newQuantity, newCartItemCount: count, shipping, subtotal, tax, total }); // ✅ added newQuantity
+  res.status(201).json({
+    success: true,
+    newQuantity,
+    newCartItemCount: count,
+    shipping,
+    subtotal,
+    tax,
+    total,
+  }); // ✅ added newQuantity
 };
 
 //decrementing
@@ -437,16 +449,26 @@ const decrementCartProduct = async (req, res) => {
     "items.productId",
   );
 
-    let subtotal = 0;
+  let subtotal = 0;
   if (cartProducts && cartProducts.items.length > 0) {
     cartProducts.items.forEach((item) => {
-      subtotal += item.productId.price * item.quantity;
+      if (item.productId) {
+        subtotal += item.productId.price * item.quantity;
+      }
     });
   }
   const shipping = 100; // example
   const tax = subtotal * 0.05; // 5% tax
   const total = subtotal + shipping + tax;
-  res.status(200).json({ success: true, newQuantity, newCartItemCount: count, shipping, subtotal, tax, total });
+  res.status(200).json({
+    success: true,
+    newQuantity,
+    newCartItemCount: count,
+    shipping,
+    subtotal,
+    tax,
+    total,
+  });
 };
 
 // Checkout page (GET)
@@ -465,7 +487,9 @@ const checkout = async (req, res) => {
     // Calculate totals
     let subtotal = 0;
     cartProducts.items.forEach((item) => {
-      subtotal += item.productId.price * item.quantity;
+      if (item.productId) {
+        subtotal += item.productId.price * item.quantity;
+      }
     });
     const shipping = 100;
     const tax = subtotal * 0.05;
@@ -504,7 +528,17 @@ const checkout = async (req, res) => {
 const processCheckout = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { name, email, phone, street, city, state, zipCode, country, paymentMethod } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      street,
+      city,
+      state,
+      zipCode,
+      country,
+      paymentMethod,
+    } = req.body;
 
     // Fetch cart items
     const cartProducts = await Cart.findOne({ userId }).populate(
@@ -516,12 +550,14 @@ const processCheckout = async (req, res) => {
     }
 
     // Prepare order items
-    const orderItems = cartProducts.items.map((item) => ({
-      productId: item.productId._id,
-      title: item.productId.title,
-      quantity: item.quantity,
-      price: item.productId.price,
-    }));
+    const orderItems = cartProducts.items
+      .filter((item) => item.productId) // remove null products
+      .map((item) => ({
+        productId: item.productId._id,
+        title: item.productId.title,
+        quantity: item.quantity,
+        price: item.productId.price,
+      }));
 
     // Calculate totals
     let subtotal = 0;
@@ -600,11 +636,13 @@ const processCheckout = async (req, res) => {
 //my orders
 const myOrders = async (req, res) => {
   const userId = req.session.user.id;
-  const orders  = await Order.find({ userId }).populate(
-    "items.productId",
-  );
-  res.render("user/my-orders", { orders, hidePageHeader: true, hidePageFooter: true });
-}
+  const orders = await Order.find({ userId }).populate("items.productId");
+  res.render("user/my-orders", {
+    orders,
+    hidePageHeader: true,
+    hidePageFooter: true,
+  });
+};
 
 // Logout
 const logout = (req, res) => {

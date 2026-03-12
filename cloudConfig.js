@@ -2,23 +2,19 @@ const multer = require("multer");
 const path = require("path");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-// Load environment variables
 require("dotenv").config();
 
-// Configure Cloudinary credentials
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// ⚙️ Hybrid setup
+const useCloudinary = process.env.NODE_ENV === "production";
+
 let storage;
 
-if (process.env.NODE_ENV === "production") {
-  
-  // --- Use Cloudinary in Production ---
+if (useCloudinary) {
   storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
@@ -27,13 +23,10 @@ if (process.env.NODE_ENV === "production") {
     },
   });
   console.log("✅ Using Cloudinary Storage");
-
 } else {
-
-  // --- Use Local Uploads in Development ---
   storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, "uploads")); // local 'uploads' folder
+      cb(null, path.join(__dirname, "../uploads"));
     },
     filename: (req, file, cb) => {
       const uniqueName = Date.now() + "-" + file.originalname;
@@ -43,4 +36,4 @@ if (process.env.NODE_ENV === "production") {
   console.log("📁 Using Local Upload Storage");
 }
 
-module.exports = { cloudinary, storage };
+module.exports = { cloudinary, storage, useCloudinary };
