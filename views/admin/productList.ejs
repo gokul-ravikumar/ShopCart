@@ -64,7 +64,7 @@
 
                     <!-- ✅ Product Image Preview -->
                     <td class="px-6 py-4">
-                     <% if (product.image && product.image.length > 0 && product.image[0].url) { %>
+                     <% if (product.image && product.image.length > 0 ) { %>
                       <img
                        src="<%= product.image[0].url %>"
                        alt="<%= product.title %>"

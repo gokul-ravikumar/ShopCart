@@ -239,6 +239,11 @@ const unblockUser = async (req, res) => {
   }
 };
 
+// Add product form
+const addProductForm = (req, res) => {
+  res.render("admin/addProduct");
+};
+
 // Add Product
 const addProduct = async (req, res) => {
   try {
@@ -322,21 +327,19 @@ const postEditProduct = async (req, res) => {
 
     // If new images uploaded
     if (req.files && req.files.length > 0) {
-      // delete old images
-      product.image.forEach((img) => {
-        const filePath = path.join(__dirname, "../uploads", img.filename);
-
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      });
-
-      // save new images
-      product.image = req.files.map((file) => ({
-        filename: file.filename, // Cloudinary public_id
-        url: file.path, // Cloudinary image URL
-      }));
+      if (useCloudinary) {
+        product.image = req.files.map((file) => ({
+          filename: file.filename,
+          url: file.path,
+        }));
+      } else {
+        product.image = req.files.map((file) => ({
+          filename: file.filename,
+          url: `/uploads/${file.filename}`,
+        }));
+      }
     }
+
     await product.save();
 
     res.redirect("/admin/product");
@@ -344,10 +347,6 @@ const postEditProduct = async (req, res) => {
     console.error(error);
     res.status(500).send("Error updating product");
   }
-};
-
-const addProductForm = (req, res) => {
-  res.render("admin/addProduct");
 };
 
 // Logout

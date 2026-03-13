@@ -16,6 +16,7 @@ addToCartButton.onclick = async () => {
   try {
     const data = await response.json();
     const cartBadge = document.querySelector("#cartCount");
+    
     cartBadge.innerText = data.newCartItemCount;
     cartBadge.style.display = "flex";
 
