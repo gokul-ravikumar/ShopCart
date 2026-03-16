@@ -644,6 +644,22 @@ const myOrders = async (req, res) => {
   });
 };
 
+//order cancellation
+const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Order.findByIdAndUpdate(id, {
+      orderStatus: "Cancelled",
+    });
+
+    res.redirect("/user/myOrders");
+  } catch (err) {
+    console.log(err);
+    res.redirect("/user/myOrders");
+  }
+};
+
 // Logout
 const logout = (req, res) => {
   req.session.destroy((err) => {
@@ -673,5 +689,6 @@ module.exports = {
   addToCartProduct,
   decrementCartProduct,
   myOrders,
+  cancelOrder,
   logout,
 };

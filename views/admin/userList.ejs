@@ -52,7 +52,9 @@
                   <% if (users && users.length> 0) { %> <% users.forEach((user,
                   i)=> { %>
                   <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3"><%= i + 1 %></td>
+                    <td class="p-3">
+                      <%= (currentPage - 1) * 10 + i + 1 %>
+                    </td>
                     <td class="p-3"><%= user.name %></td>
                     <td class="p-3"><%= user.email %></td>
                     <td class="p-3"><%= user.phone %></td>
@@ -119,6 +121,55 @@
               </table>
             </div>
           </section>
+
+          <!-- Pagination -->
+              <div class="flex flex-col md:flex-row items-center justify-between mt-6">
+                
+                <p class="text-sm text-gray-600 mb-3 md:mb-0">
+                  Page
+                  <span class="font-semibold text-gray-900">
+                    <%= currentPage %>
+                  </span>
+                  of
+                  <span class="font-semibold text-gray-900">
+                    <%= totalPages %>
+                  </span>
+                </p>
+
+                <div class="flex items-center gap-2">
+
+                  <% if (currentPage > 1) { %>
+                    <a
+                      href="?page=<%= currentPage - 1 %>"
+                      class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                    >
+                      ← Prev
+                    </a>
+                  <% } %>
+
+                  <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a
+                      href="?page=<%= i %>"
+                      class="px-3 py-1.5 border text-sm rounded-lg transition shadow-sm
+                      <%= i === currentPage
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100' %>"
+                    >
+                      <%= i %>
+                    </a>
+                  <% } %>
+
+                  <% if (currentPage < totalPages) { %>
+                    <a
+                      href="?page=<%= currentPage + 1 %>"
+                      class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                    >
+                      Next →
+                    </a>
+                  <% } %>
+
+                </div>
+              </div>
 
           <!-- Charts Section -->
           <section class="grid md:grid-cols-2 gap-6">

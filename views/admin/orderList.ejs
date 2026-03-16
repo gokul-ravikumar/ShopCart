@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 w-full font-inter">
+
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <%- include("partials/sidebar") %>
+
+    <div class="flex-1 flex flex-col">
+
+      <!-- Header -->
+      <%- include("partials/header", { pageTitle: "Order Dashboard" }) %>
+
+      <main class="p-6 space-y-8">
+
+        <section class="bg-white p-6 shadow-md rounded-xl">
+
+          <h2 class="text-lg font-semibold mb-5 flex items-center gap-2">
+            🧾 All Orders
+          </h2>
+
+          <div class="relative overflow-x-auto rounded-xl border border-gray-200">
+
+            <table class="w-full text-sm text-left text-gray-700">
+
+              <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b">
+                <tr>
+                  <th class="px-6 py-3">#</th>
+                  <th class="px-6 py-3">Customer</th>
+                  <th class="px-6 py-3">Amount</th>
+                  <th class="px-6 py-3">Payment</th>
+                  <th class="px-6 py-3">Status</th>
+                  <th class="px-6 py-3">Date</th>
+                  <th class="px-6 py-3 text-center">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <% if (orders && orders.length > 0) { %>
+
+                  <% orders.forEach((order, i) => { %>
+
+                    <tr class="border-b hover:bg-gray-50">
+
+                      <td class="px-6 py-4 text-gray-500">
+                        <%= (currentPage - 1) * 10 + i + 1 %>
+                      </td>
+
+                      <td class="px-6 py-4">
+                        <%= order.customerInfo?.name || "Guest" %>
+                      </td>
+
+                      <td class="px-6 py-4 font-semibold text-gray-800">
+                        ₹<%= order.totalAmount.toFixed(2) %>
+                      </td>
+
+                      <td class="px-6 py-4">
+                        <%= order.paymentMethod %>
+                      </td>
+
+                      <td class="px-6 py-4">
+
+                        <% if (order.orderStatus === "completed") { %>
+
+                          <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                            Completed
+                          </span>
+
+                        <% } else if (order.orderStatus === "cancelled") { %>
+
+                          <span class="px-2 py-1 text-xs rounded bg-red-100 text-red-700">
+                            Cancelled
+                          </span>
+
+                        <% } else { %>
+
+                          <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+                            Pending
+                          </span>
+
+                        <% } %>
+
+                      </td>
+
+                      <td class="px-6 py-4 text-gray-600">
+                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                      </td>
+
+                      <td class="px-6 py-4 text-center">
+
+                        <div class="flex justify-center gap-2">
+
+                          <a
+                            href="/admin/order/<%= order._id %>"
+                            class="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-600 transition shadow-sm"
+                          >
+                            View
+                          </a>
+
+                          <button
+                            onclick="cancelOrder('<%= order._id %>')"
+                            class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-red-600 transition shadow-sm"
+                          >
+                            Cancel
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  <% }) %>
+
+                <% } else { %>
+
+                  <tr>
+                    <td colspan="8" class="text-center text-gray-500 p-5 italic">
+                      No orders found
+                    </td>
+                  </tr>
+
+                <% } %>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <!-- Pagination -->
+          <div class="flex flex-col md:flex-row items-center justify-between mt-6">
+
+            <p class="text-sm text-gray-600 mb-3 md:mb-0">
+              Page
+              <span class="font-semibold text-gray-900"><%= currentPage %></span>
+              of
+              <span class="font-semibold text-gray-900"><%= totalPages %></span>
+            </p>
+
+            <div class="flex items-center gap-2">
+
+              <% if (currentPage > 1) { %>
+
+                <a
+                  href="?page=<%= currentPage - 1 %>"
+                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                >
+                  ← Prev
+                </a>
+
+              <% } %>
+
+              <% for (let i = 1; i <= totalPages; i++) { %>
+
+                <a
+                  href="?page=<%= i %>"
+                  class="px-3 py-1.5 border text-sm rounded-lg transition shadow-sm
+                  <%= i === currentPage
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                  %>"
+                >
+                  <%= i %>
+                </a>
+
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+
+                <a
+                  href="?page=<%= currentPage + 1 %>"
+                  class="px-3 py-1.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm shadow-sm"
+                >
+                  Next →
+                </a>
+
+              <% } %>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+  </div>
+
+  <script>
+    function cancelOrder(id) {
+      Swal.fire({
+        title: "Cancel Order?",
+        text: "This order will be cancelled!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e02424",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Cancel"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/order/cancel/${id}`;
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -86,6 +86,9 @@ router.post("/checkout", userAuth.checkUserSession, controllers.processCheckout)
 //my orders
 router.get("/myOrders", userAuth.checkUserSession, controllers.myOrders);
 
+//order cancellation
+router.post("/myOrders/:id/cancel",userAuth.checkUserSession,controllers.cancelOrder);
+
 // Logout
 router.get("/logout", userAuth.checkUserSession, controllers.logout);
 

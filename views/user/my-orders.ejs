@@ -15,10 +15,22 @@
 
   <!-- Order Header -->
   <div class="flex justify-between items-center mb-4">
-      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-        <%= order.orderStatus %>
-      </span>
-  </div>
+
+  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+    <%= order.orderStatus %>
+  </span>
+
+  <% if(order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered"){ %>
+
+    <form action="/user/myOrders/<%= order._id %>/cancel" method="POST">
+      <button class="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
+        Cancel
+      </button>
+    </form>
+
+  <% } %>
+
+</div>
 
   <!-- Products -->
   <% order.items.forEach(item => { %>

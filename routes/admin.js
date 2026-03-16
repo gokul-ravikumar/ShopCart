@@ -55,6 +55,13 @@ router.post(
   controllers.postEditProduct,
 );
 
+//order management
+router.get("/order",controllers.orderList)
+
+//order view
+router.get("/order/:id",controllers.orderView)
+
+//logout
 router.get("/logout", controllers.logout)
 
 module.exports = router;

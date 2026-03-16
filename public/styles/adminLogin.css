@@ -101,17 +101,17 @@ form button {
   padding: 12px 0;
   border: none;
   border-radius: 10px;
-  background: #6a11cb; /* gradient color */
-  background: linear-gradient(to right, #2575fc, #6a11cb);
+  background: linear-gradient(270deg, #2575fc, #6a11cb, #2575fc);
+  background-size: 200% 200%;
   color: #fff;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 form button:hover {
-  background: linear-gradient(to right, #6a11cb, #2575fc);
+  background-position: right center;
 }
 
 .social {

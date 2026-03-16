@@ -1,6 +1,7 @@
 const Admin = require("../models/adminModel");
 const User = require("../models/User"); // make sure this path is correct
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 const bcrypt = require("bcrypt"); // Needed for login comparison
 const path = require("path");
 const fs = require("fs");
@@ -142,11 +143,27 @@ const loadUserList = async (req, res) => {
     const admin = req.session.admin;
     if (!admin) return res.redirect("/admin/login");
 
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
 
-    res.render("admin/userList", { admin, users });
+    const totalUsers = await User.countDocuments();
+
+    const users = await User.find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.render("admin/userList", {
+      admin,
+      users,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
-    console.error("Error loading user List:", error);
+    console.error("Error loading user list:", error);
     res.status(500).send("Server error");
   }
 };
@@ -349,6 +366,68 @@ const postEditProduct = async (req, res) => {
   }
 };
 
+//orders
+const orderList = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const admin = req.session.admin;
+    const orders = await Order.find()
+      .populate("userId")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const totalOrders = await Order.countDocuments();
+
+    res.render("admin/orderList", {
+      admin,
+      orders,
+      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//order view
+const orderView = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    console.log("order id", orderId);
+
+    const order = await Order.findById(orderId)
+      .populate("userId")
+      .populate("items.productId");
+
+      console.log("order:",order)
+
+    if (!order) {
+      return res.redirect("/admin/order");
+    }
+
+    const customer = order.userId;
+    console.log("customer", customer);
+
+    const orderItems = order.items.map((item) => ({
+      productName: item.productId ? item.productId.title : "Product Item",
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
+    res.render("admin/orderView", {
+      order,
+      customer,
+      orderItems,
+      shippingAddress: order.address,
+    });
+  } catch (error) {
+    console.log("Order View Error:", error);
+    res.redirect("/admin/order");
+  }
+};
+
 // Logout
 const logout = async (req, res) => {
   req.session.admin = null;
@@ -375,5 +454,7 @@ module.exports = {
   getEditProduct,
   postEditProduct,
   addProductForm,
+  orderList,
+  orderView,
   logout,
 };

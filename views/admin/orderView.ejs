@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+  <div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- Page Title -->
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+      Order Details
+    </h1>
+
+
+    <!-- Order Information -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+
+      <h2 class="text-lg font-semibold mb-4">
+        Order Information
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+
+        <div>
+          <p class="text-gray-500">Order ID</p>
+          <p class="font-medium"><%= order._id %></p>
+        </div>
+
+        <div>
+          <p class="text-gray-500">Date</p>
+          <p class="font-medium">
+            <%= order.createdAt.toDateString() %>
+          </p>
+        </div>
+
+        <div>
+          <p class="text-gray-500">Payment</p>
+          <p class="font-medium">
+            <%= order.paymentMethod %>
+          </p>
+        </div>
+
+        <div>
+          <p class="text-gray-500">Status</p>
+          <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
+            <%= order.orderStatus %>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Customer + Address -->
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+
+      <!-- Customer Info -->
+      <div class="bg-white rounded-lg shadow p-6">
+
+        <h2 class="text-lg font-semibold mb-4">
+          Customer Information
+        </h2>
+
+        <div class="space-y-2 text-sm">
+            <p>
+              <span class="font-medium">Name:</span> 
+              <%= order.customerInfo.name %>
+            </p>
+
+            <p>
+              <span class="font-medium">Email:</span> 
+              <%= order.customerInfo.email %>
+            </p>
+
+            <p>
+              <span class="font-medium">Phone:</span> 
+              <%= order.customerInfo.phone %>
+            </p>
+        </div>
+
+      </div>
+
+
+      <!-- Shipping Address -->
+      <div class="bg-white rounded-lg shadow p-6">
+
+        <h2 class="text-lg font-semibold mb-4">
+          Shipping Address
+        </h2>
+
+        <div class="text-sm space-y-1">
+
+          <% if (shippingAddress) { %>
+
+            <p><%= order.customerInfo.name %></p>
+            <p><%= shippingAddress.street %></p>
+            <p>
+              <%= shippingAddress.city %>, 
+              <%= shippingAddress.state %>
+            </p>
+            <p><%= shippingAddress.zipCode %></p>
+            <p><%= shippingAddress.country %></p>
+
+          <% } else { %>
+
+            <p class="text-red-500">
+              No address available
+            </p>
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Ordered Products -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+
+      <h2 class="text-lg font-semibold mb-4">
+        Ordered Products
+      </h2>
+
+      <div class="overflow-x-auto">
+
+        <table class="w-full text-sm border">
+
+          <thead class="bg-gray-100 text-gray-600">
+            <tr>
+              <th class="p-3 text-left">Product</th>
+              <th class="p-3 text-left">Price</th>
+              <th class="p-3 text-left">Quantity</th>
+              <th class="p-3 text-left">Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+           <% order.items.forEach(item => { %>
+              <tr class="border-t">
+
+              <td class="p-3 font-medium">
+                <a href="/product/<%= item.productId._id %>" class="text-blue-600 hover:underline">
+                  <%= item.productId?.title || item.title %>
+                </a>
+              </td>
+                
+                <td class="p-3">
+                  ₹<%= item.price %>
+                </td>
+
+                <td class="p-3">
+                  <%= item.quantity %>
+                </td>
+
+                <td class="p-3 font-semibold">
+                  ₹<%= item.price * item.quantity %>
+                </td>
+
+              </tr>
+
+           <% }) %>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- Price Summary -->
+    <div class="bg-white rounded-lg shadow p-6">
+
+      <h2 class="text-lg font-semibold mb-4">
+        Price Summary
+      </h2>
+
+      <div class="space-y-2 text-sm">
+
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span>₹<%= order.subtotal %></span>
+        </div>
+
+        <div class="flex justify-between">
+          <span>Shipping</span>
+          <span>₹<%= order.shipping %></span>
+        </div>
+
+        <hr>
+
+        <div class="flex justify-between text-lg font-bold">
+          <span>Total</span>
+          <span>₹<%= order.totalAmount.toFixed(2) %></span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
