@@ -2,7 +2,6 @@ const Cart = require("../models/Cart");
 const getCartItemCount = require("../helpers/cartHelper");
 
 const loadCartItemCount = async (req, res, next) => {
-  console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
   // Set default locals for boilerplate
   res.locals.hidePageFooter = false;
   
