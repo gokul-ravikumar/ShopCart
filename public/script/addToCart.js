@@ -16,16 +16,18 @@ addToCartButton.onclick = async () => {
   try {
     const data = await response.json();
     const cartBadge = document.querySelector("#cartCount");
-    
+
     cartBadge.innerText = data.newCartItemCount;
     cartBadge.style.display = "flex";
 
     if (data.success === true) {
       Swal.fire({
-        title: "Success!",
-        text: "Item added to cart!",
+        toast: true,
+        position: "top-end",
         icon: "success",
-        confirmButtonText: "OK",
+        title: "Added to cart",
+        showConfirmButton: false,
+        timer: 1500,
       });
     }
   } catch (error) {

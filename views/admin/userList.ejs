@@ -193,28 +193,57 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script>
       const ctx = document.getElementById("myChart");
       const ctx2 = document.getElementById("myChart2");
 
       if (ctx) {
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-            datasets: [
-              {
-                label: "User Growth",
-                data: [12, 19, 3, 5, 2, 3],
-                borderWidth: 2,
+          fetch("/admin/user")
+          .then(res => res.json())
+          .then(usersData => {
+
+            const counts = {};
+            usersData.forEach(user => {
+              if (!user.createdAt) return;
+
+              const date = new Date(user.createdAt)
+                .toISOString()
+                .split("T")[0];
+
+              if (!counts[date]) counts[date] = 0;
+              counts[date]++;
+            });
+
+            const chartData = Object.keys(counts)
+              .sort()
+              .map(date => ({
+                x: date,
+                y: counts[date]
+              }));
+
+            new Chart(ctx, {
+              type: "line",
+              data: {
+                datasets: [{
+                  label: "Users per Day",
+                  data: chartData
+                }]
               },
-            ],
-          },
-          options: {
-            scales: { y: { beginAtZero: true } },
-          },
-        });
-      }
+              options: {
+                scales: {
+                  x: {
+                    type: "time",
+                    time: { unit: "day" }
+                  },
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              }
+            });
+          });
+        }
 
       if (ctx2) {
         new Chart(ctx2, {

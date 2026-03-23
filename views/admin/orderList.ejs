@@ -71,25 +71,34 @@
 
                       <td class="px-6 py-4">
 
-                        <% if (order.orderStatus === "completed") { %>
+                        <form action="/admin/order/status/<%= order._id %>" method="POST">
 
-                          <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                            Completed
-                          </span>
+                          <select
+                            name="orderStatus"
+                            class="px-2 py-1 text-xs border rounded-md
+                            <%= order.orderStatus === 'completed'
+                                ? 'bg-green-100 text-green-700'
+                                : order.orderStatus === 'cancelled'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-yellow-100 text-yellow-700' %>"
+                            onchange="this.form.submit()"
+                          >
 
-                        <% } else if (order.orderStatus === "cancelled") { %>
+                            <option value="pending" <%= order.orderStatus === 'pending' ? 'selected' : '' %>>
+                              Pending
+                            </option>
 
-                          <span class="px-2 py-1 text-xs rounded bg-red-100 text-red-700">
-                            Cancelled
-                          </span>
+                            <option value="completed" <%= order.orderStatus === 'completed' ? 'selected' : '' %>>
+                              Completed
+                            </option>
 
-                        <% } else { %>
+                            <option value="cancelled" <%= order.orderStatus === 'cancelled' ? 'selected' : '' %>>
+                              Cancelled
+                            </option>
 
-                          <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                            Pending
-                          </span>
+                          </select>
 
-                        <% } %>
+                        </form>
 
                       </td>
 
@@ -197,6 +206,7 @@
       </main>
 
     </div>
+
   </div>
 
   <script>

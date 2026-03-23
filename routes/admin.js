@@ -52,7 +52,7 @@ router.get("/product/edit/:id", controllers.getEditProduct);
 router.post(
   "/product/edit/:id",
   upload.array("images", 5),
-  controllers.postEditProduct,
+  controllers.postEditProduct
 );
 
 //order management
@@ -60,6 +60,9 @@ router.get("/order",controllers.orderList)
 
 //order view
 router.get("/order/:id",controllers.orderView)
+
+//order status
+router.post("/order/status/:id", controllers.updateOrderStatus);
 
 //logout
 router.get("/logout", controllers.logout)

@@ -401,7 +401,7 @@ const orderView = async (req, res) => {
       .populate("userId")
       .populate("items.productId");
 
-      console.log("order:",order)
+    console.log("order:", order);
 
     if (!order) {
       return res.redirect("/admin/order");
@@ -424,6 +424,26 @@ const orderView = async (req, res) => {
     });
   } catch (error) {
     console.log("Order View Error:", error);
+    res.redirect("/admin/order");
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+
+    const orderId = req.params.id;
+    const { orderStatus } = req.body;
+
+    await Order.findByIdAndUpdate(
+      orderId,
+      { orderStatus: orderStatus },
+      { new: true }   // ensures updated document
+    );
+
+    res.redirect("/admin/order");
+
+  } catch (error) {
+    console.log("Status Update Error:", error);
     res.redirect("/admin/order");
   }
 };
@@ -456,5 +476,6 @@ module.exports = {
   addProductForm,
   orderList,
   orderView,
+  updateOrderStatus,
   logout,
 };

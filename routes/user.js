@@ -8,6 +8,7 @@ const {
   checkUser,
   verifyOtpForgot,
   changePassword,
+  forBuyNow,
 } = require("../controllers/user");
 
 // Render login page (GET)
@@ -81,13 +82,27 @@ router.post(
 router.get("/checkout", userAuth.checkUserSession, controllers.checkout);
 
 // Checkout (POST)
-router.post("/checkout", userAuth.checkUserSession, controllers.processCheckout);
+router.post(
+  "/checkout",
+  userAuth.checkUserSession,
+  controllers.processCheckout,
+);
+
+//buy now
+router.get("/product/:id/buyNow",controllers.forBuyNow)
+
+//post buy now
+router.post("/product/:id/buyNow",controllers.postBuyNow)
 
 //my orders
 router.get("/myOrders", userAuth.checkUserSession, controllers.myOrders);
 
 //order cancellation
-router.post("/myOrders/:id/cancel",userAuth.checkUserSession,controllers.cancelOrder);
+router.post(
+  "/myOrders/:id/cancel",
+  userAuth.checkUserSession,
+  controllers.cancelOrder,
+);
 
 // Logout
 router.get("/logout", userAuth.checkUserSession, controllers.logout);

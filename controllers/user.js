@@ -2,6 +2,7 @@ const getCartItemCount = require("../helpers/cartHelper");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const Product = require("../models/Product");
 const bcrypt = require("bcrypt");
 const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
   process.env;
@@ -568,6 +569,8 @@ const processCheckout = async (req, res) => {
     const tax = subtotal * 0.05;
     const total = subtotal + shipping + tax;
 
+    console.log("order items:", orderItems);
+
     // Create order
     const Order = require("../models/Order");
     const order = new Order({
@@ -633,6 +636,127 @@ const processCheckout = async (req, res) => {
   }
 };
 
+//buy now
+const forBuyNow = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const user = await User.findById(userId);
+    const product = await Product.findById(req.params.id);
+
+    // ✅ create fake cart for EJS
+    const cartProducts = {
+      items: [
+        {
+          productId: product,
+          quantity: 1,
+        },
+      ],
+    };
+
+    // ✅ correct calculation
+    const subtotal = product.price;
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    res.render("user/buyNow-checkOut", {
+      product,
+      user,
+      cartProducts,
+      subtotal,
+      shipping,
+      tax,
+      total,
+      message: null,
+      messageType: null,
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  } catch (error) {
+    console.error("Checkout error:", error);
+    res.render("user/buyNow-checkOut", {
+      product: null,
+      user: null,
+      cartProducts: { items: [] }, // ✅ prevent crash
+      subtotal: 0,
+      shipping: 0,
+      tax: 0,
+      total: 0,
+      message: "An error occurred while loading checkout page",
+      messageType: "error",
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  }
+};
+
+//Post buy now
+const postBuyNow = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const {
+      name,
+      email,
+      phone,
+      street,
+      city,
+      state,
+      zipCode,
+      country,
+      paymentMethod,
+    } = req.body;
+    const productId = req.params.id;
+    console.log("productID:", productId);
+    const product = await Product.findById(productId);
+    console.log("productDB:", product);
+
+    if(!product){
+      return res.redirect("/product")
+    }
+
+    // create order item
+    const orderItem = [
+      {
+        productId: product._id,
+        title: product.title,
+        quantity: 1,
+        price: product.price,
+      },
+    ];
+
+    // Calculate totals
+    const subtotal = product.price;
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    const orderPayload = new Order({
+      userId,
+      customerInfo: { name, email, phone },
+      address: { street, city, state, zipCode, country },
+      items: orderItem,
+      subtotal,
+      shipping,
+      tax,
+      totalAmount: total,
+      paymentMethod,
+      orderStatus: "pending",
+    });
+
+    await orderPayload.save();
+
+    res.render("user/checkout", {
+      message: "Order placed successfully!",
+      messageType: "success",
+      hidePageFooter: true,
+      hidePageHeader: true,
+    });
+  } catch (error) {
+    console.error("Buy Now Error:", error);
+    res.redirect("/product");
+  }
+};
+
 //my orders
 const myOrders = async (req, res) => {
   const userId = req.session.user.id;
@@ -686,6 +810,8 @@ module.exports = {
   cart,
   checkout,
   processCheckout,
+  forBuyNow,
+  postBuyNow,
   addToCartProduct,
   decrementCartProduct,
   myOrders,
