@@ -401,8 +401,6 @@ const orderView = async (req, res) => {
       .populate("userId")
       .populate("items.productId");
 
-    console.log("order:", order);
-
     if (!order) {
       return res.redirect("/admin/order");
     }
