@@ -84,24 +84,42 @@ const loadDashboard = async (req, res) => {
   try {
     const admin = req.session.admin;
     if (!admin) return res.redirect("/admin/login");
+    const users = await User.find({}).limit(3)
+    const orders = await Order.find({}).limit(3)
 
-    const users = await User.find({});
+    const activeUsers = await User.find({ isBlocked: false });
+    const blockedUsers = await User.find({ isBlocked: true });
+    let active = activeUsers.length;
+    let blocked = blockedUsers.length;
 
-    // Example stats
-    const stats = {
-      users: users.length,
-      revenue: 12345, // replace with actual revenue logic if any
-      sessions: 10, // replace with real session count if needed
-    };
+    const userGrowth = await User.aggregate([
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$createdAt",
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+      {
+        $limit: 7,
+      },
+    ]);
 
-    // Example recent activity
-    const activity = [
-      { user: "John Doe", action: "Logged in", date: "2025-10-17" },
-      { user: "Jane Smith", action: "Added new user", date: "2025-10-16" },
-      // you can populate this from DB if needed
-    ];
-
-    res.render("admin/dashboard", { admin, stats, activity });
+    res.render("admin/dashboard", {
+      admin,
+      users,
+      orders,
+      active,
+      blocked,
+      userGrowth,
+    });
   } catch (error) {
     console.error("Error loading dashboard:", error);
     res.status(500).send("Server error");
@@ -428,18 +446,16 @@ const orderView = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-
     const orderId = req.params.id;
     const { orderStatus } = req.body;
 
     await Order.findByIdAndUpdate(
       orderId,
       { orderStatus: orderStatus },
-      { new: true }   // ensures updated document
+      { new: true }, // ensures updated document
     );
 
     res.redirect("/admin/order");
-
   } catch (error) {
     console.log("Status Update Error:", error);
     res.redirect("/admin/order");

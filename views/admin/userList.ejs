@@ -170,96 +170,12 @@
 
                 </div>
               </div>
-
-          <!-- Charts Section -->
-          <section class="grid md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 shadow rounded-lg">
-              <h3 class="text-lg font-semibold mb-4">User Growth</h3>
-              <canvas id="myChart"></canvas>
-            </div>
-
-            <div
-              class="bg-white p-6 shadow rounded-lg flex flex-col items-center justify-center"
-            >
-              <h3 class="text-lg font-semibold mb-4">User Distribution</h3>
-              <div class="w-48 h-48">
-                <!-- 🔹 Makes the chart smaller -->
-                <canvas id="myChart2"></canvas>
-              </div>
-            </div>
-          </section>
         </main>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    <script>
-      const ctx = document.getElementById("myChart");
-      const ctx2 = document.getElementById("myChart2");
-
-      if (ctx) {
-          fetch("/admin/user")
-          .then(res => res.json())
-          .then(usersData => {
-
-            const counts = {};
-            usersData.forEach(user => {
-              if (!user.createdAt) return;
-
-              const date = new Date(user.createdAt)
-                .toISOString()
-                .split("T")[0];
-
-              if (!counts[date]) counts[date] = 0;
-              counts[date]++;
-            });
-
-            const chartData = Object.keys(counts)
-              .sort()
-              .map(date => ({
-                x: date,
-                y: counts[date]
-              }));
-
-            new Chart(ctx, {
-              type: "line",
-              data: {
-                datasets: [{
-                  label: "Users per Day",
-                  data: chartData
-                }]
-              },
-              options: {
-                scales: {
-                  x: {
-                    type: "time",
-                    time: { unit: "day" }
-                  },
-                  y: {
-                    beginAtZero: true
-                  }
-                }
-              }
-            });
-          });
-        }
-
-      if (ctx2) {
-        new Chart(ctx2, {
-          type: "pie",
-          data: {
-            labels: ["Active", "Blocked"],
-            datasets: [
-              {
-                label: "User Distribution",
-                data: [80, 20],
-                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
-              },
-            ],
-          },
-        });
-      }
-    </script>
+   
   </body>
 </html>

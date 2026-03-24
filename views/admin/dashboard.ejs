@@ -60,32 +60,20 @@
               <table class="min-w-full table-auto">
                 <thead>
                   <tr class="bg-gray-100 text-left text-sm">
-                    <th class="p-2">Order ID</th>
                     <th class="p-2">Customer</th>
                     <th class="p-2">Amount</th>
                     <th class="p-2">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr class="border-b">
-                    <td class="p-2">#1023</td>
-                    <td class="p-2">John Doe</td>
-                    <td class="p-2">&#8377;150</td>
-                    <td class="p-2 text-green-600">Delivered</td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="p-2">#1024</td>
-                    <td class="p-2">Jane Smith</td>
-                    <td class="p-2">&#8377;99</td>
-                    <td class="p-2 text-yellow-600">Pending</td>
-                  </tr>
-                  <tr class="border-b">
-                    <td class="p-2">#1025</td>
-                    <td class="p-2">Raj Patel</td>
-                    <td class="p-2">&#8377;210</td>
-                    <td class="p-2 text-blue-600">Shipped</td>
-                  </tr>
-                </tbody>
+                  <tbody>
+                    <% orders.forEach((order, index) => { %>
+                      <tr>
+                        <td class="p-2"><%= order.customerInfo.name %></td>
+                        <td class="p-2">₹<%= order.totalAmount.toFixed(2) %></td>
+                        <td class="p-2"><%= order.orderStatus %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
               </table>
             </div>
           </section>
@@ -94,65 +82,55 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </body>
-</html>
+</html>//
 
 <script>
-  const ctx = document.getElementById("myChart");
-  const ctx2 = document.getElementById("myChart2");
-  
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [
-        {
-          label: "Votes",
-          data: [12, 19, 3, 5, 2, 3],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
+      console.log("hii");
+      const growthData = <%- JSON.stringify(userGrowth) %>;
+      console.log("growth data:", growthData);
 
-  new Chart(ctx2, {
-    type: "radar",
-    data: {
-      labels: ["Speed", "Reliability", "Comfort", "Safety", "Efficiency", "Style"],
-      datasets: [
-        {
-          label: "Car A",
-          data: [65, 59, 90, 81, 56, 55],
-          fill: true,
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderColor: "rgb(255, 99, 132)",
-          pointBackgroundColor: "rgb(255, 99, 132)"
-        },
-        {
-          label: "Car B",
-          data: [28, 48, 40, 19, 96, 27],
-          fill: true,
-          backgroundColor: "rgba(54, 162, 235, 0.2)",
-          borderColor: "rgb(54, 162, 235)",
-          pointBackgroundColor: "rgb(54, 162, 235)"
-        }
-      ]
-    },
-    options: {
-      scales: {
-        r: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 20
-          }
-        }
+      const ctx = document.getElementById("myChart");
+      const ctx2 = document.getElementById("myChart2");
+
+      if (ctx) {
+      new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: growthData.map(item => item._id), 
+            datasets: [
+              {
+                label: "Votes",
+                data: growthData.map(item => item.count), 
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
       }
-    }
-  });
-</script>
+
+      if (ctx2) {
+        let activeUser = <%= active %>;
+        let blockedUser = <%= blocked %>;
+
+        new Chart(ctx2, {
+          type: "pie",
+          data: {
+            labels: ["Active", "Blocked"],
+            datasets: [
+              {
+                label: "User Distribution",
+                data: [activeUser,blockedUser],
+                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
+              },
+            ],
+          },
+        });
+      }
+    </script>
