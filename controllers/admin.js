@@ -84,8 +84,8 @@ const loadDashboard = async (req, res) => {
   try {
     const admin = req.session.admin;
     if (!admin) return res.redirect("/admin/login");
-    const users = await User.find({}).limit(3)
-    const orders = await Order.find({}).limit(3)
+
+    const orders = await Order.find({}).populate("userId").sort({ createdAt: -1 }).limit(3);
 
     const activeUsers = await User.find({ isBlocked: false });
     const blockedUsers = await User.find({ isBlocked: true });
@@ -114,7 +114,6 @@ const loadDashboard = async (req, res) => {
 
     res.render("admin/dashboard", {
       admin,
-      users,
       orders,
       active,
       blocked,

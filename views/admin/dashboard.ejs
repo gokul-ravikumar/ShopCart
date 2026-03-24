@@ -68,7 +68,7 @@
                   <tbody>
                     <% orders.forEach((order, index) => { %>
                       <tr>
-                        <td class="p-2"><%= order.customerInfo.name %></td>
+                        <td class="p-2"><%= order.userId.name %></td>
                         <td class="p-2">₹<%= order.totalAmount.toFixed(2) %></td>
                         <td class="p-2"><%= order.orderStatus %></td>
                       </tr>
