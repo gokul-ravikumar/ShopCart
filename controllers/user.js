@@ -482,7 +482,7 @@ const checkout = async (req, res) => {
     );
 
     if (!cartProducts || cartProducts.items.length === 0) {
-      return res.redirect("/product/cart");
+      return res.redirect("/product");
     }
 
     // Calculate totals

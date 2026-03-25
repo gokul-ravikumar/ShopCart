@@ -50,7 +50,6 @@ router.post("/", upload.array("images", 5), async (req, res) => {
         url: `/uploads/${obj.filename}`,
       })),
     });
-    console.log("obj",obj)
 
     await newProduct.save();
     console.log("✅ New product saved:", newProduct);
