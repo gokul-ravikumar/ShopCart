@@ -586,6 +586,14 @@ const processCheckout = async (req, res) => {
       orderStatus: "pending",
     });
 
+    const razorpay = require("../helpers/razorpay");
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(total * 100), // integer
+      currency: "INR",
+      receipt: `order_${Date.now()}`,
+    });
+
     await order.save();
 
     // Clear cart
@@ -601,6 +609,7 @@ const processCheckout = async (req, res) => {
       total: 0,
       message: "Order placed successfully!",
       messageType: "success",
+      razorpayOrder,
       hidePageFooter: true,
       hidePageHeader: true,
     });
@@ -633,6 +642,126 @@ const processCheckout = async (req, res) => {
       hidePageFooter: true,
       hidePageHeader: true,
     });
+  }
+};
+
+// Simple Razorpay Order Creation
+const createOrder = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      phone,
+      street,
+      city,
+      state,
+      zipCode,
+      country,
+      paymentMethod,
+    } = req.body;
+    const userId = req.session.user.id;
+
+    const cartProducts = await Cart.findOne({ userId }).populate(
+      "items.productId",
+    );
+
+    if (!cartProducts || cartProducts.items.length === 0) {
+      return res.json({ success: false, message: "Cart is empty" });
+    }
+
+    // Calculate total
+    let subtotal = 0;
+    const items = [];
+    cartProducts.items.forEach((item) => {
+      if (item.productId) {
+        subtotal += item.productId.price * item.quantity;
+        items.push({
+          productId: item.productId._id,
+          title: item.productId.title,
+          quantity: item.quantity,
+          price: item.productId.price,
+        });
+      }
+    });
+
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    // Create Razorpay order
+    const razorpay = require("../helpers/razorpay");
+    const orderAmountInPaise = Math.round(total * 100);
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: orderAmountInPaise, // integer now
+      currency: "INR",
+      receipt: `order_${Date.now()}`,
+    });
+
+    // Save temporary order
+    const newOrder = new Order({
+      userId,
+      customerInfo: { name, email, phone },
+      address: { street, city, state, zipCode, country },
+      items,
+      subtotal,
+      shipping,
+      tax,
+      totalAmount: total,
+      paymentMethod,
+      razorpayOrderId: razorpayOrder.id,
+      orderStatus: "pending",
+    });
+
+    await newOrder.save();
+
+    res.json({
+      success: true,
+      orderId: razorpayOrder.id,
+      amount: orderAmountInPaise, // return integer paise
+      apiKey: process.env.RAZORPAY_API_KEY,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Error creating order" });
+  }
+};
+
+// Simple Payment Verification
+const verifyPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      orderId,
+    } = req.body;
+    const crypto = require("crypto");
+
+    // Verify signature
+    const generated_signature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (generated_signature === razorpay_signature) {
+      // Update order status
+      await Order.findByIdAndUpdate(orderId, {
+        orderStatus: "paid",
+        razorpayPaymentId: razorpay_payment_id,
+      });
+
+      // Clear cart
+      const userId = req.session.user.id;
+      await Cart.updateOne({ userId }, { items: [] });
+
+      res.json({ success: true, message: "Payment verified" });
+    } else {
+      res.json({ success: false, message: "Invalid signature" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Verification failed" });
   }
 };
 
@@ -710,8 +839,8 @@ const postBuyNow = async (req, res) => {
     const product = await Product.findById(productId);
     console.log("productDB:", product);
 
-    if(!product){
-      return res.redirect("/product")
+    if (!product) {
+      return res.redirect("/product");
     }
 
     // create order item
@@ -810,6 +939,8 @@ module.exports = {
   cart,
   checkout,
   processCheckout,
+  createOrder,
+  verifyPayment,
   forBuyNow,
   postBuyNow,
   addToCartProduct,

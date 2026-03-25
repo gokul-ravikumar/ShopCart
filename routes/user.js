@@ -88,6 +88,10 @@ router.post(
   controllers.processCheckout,
 );
 
+//razorpay
+router.post("/create-order", userAuth.checkUserSession, controllers.createOrder);
+router.post("/verify-payment", userAuth.checkUserSession, controllers.verifyPayment);
+
 //buy now
 router.get("/product/:id/buyNow",controllers.forBuyNow)
 

@@ -98,6 +98,9 @@ const orderSchema = new Schema(
       required: true,
     },
 
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+
     orderStatus: {
       type: String,
       enum: ["pending", "completed", "cancelled"],

@@ -218,21 +218,6 @@
               <span class="ml-3 text-gray-700 font-medium">OnLine</span>
             </label>
 
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="Debit Card" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">Debit Card</span>
-            </label>
-
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="Credit Card" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">Credit Card</span>
-            </label>
-
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="UPI" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">UPI</span>
-            </label>
-
             <span class="text-red-600 text-sm hidden block" id="paymentError"></span>
           </div>
         </div>
@@ -291,7 +276,8 @@
 
           <!-- Submit Button -->
           <button
-            type="submit"
+            type="button"
+            onclick="handleCheckout()"
             class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2"
           >
             <span>Place Order</span>
@@ -312,3 +298,123 @@
 </div>
 
 <script src="/script/checkoutValidation.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+async function handleCheckout() {
+  // Get selected payment method
+  const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
+  
+  if (!paymentMethodElement) {
+    alert("Please select a payment method");
+    return;
+  }
+  
+  const paymentMethod = paymentMethodElement.value;
+  console.log("Selected payment method:", paymentMethod);
+  
+  // COD goes to regular checkout
+  if (paymentMethod === "COD") {
+    console.log("Processing COD order...");
+    document.getElementById("checkoutForm").action = "/user/checkout";
+    document.getElementById("checkoutForm").method = "POST";
+    document.getElementById("checkoutForm").submit();
+    return;
+  }
+
+  // All other payment methods use Razorpay
+  console.log("Processing Razorpay payment...");
+  
+  // Collect form data
+  const formData = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    street: document.getElementById("street").value,
+    city: document.getElementById("city").value,
+    state: document.getElementById("state").value,
+    zipCode: document.getElementById("zipCode").value,
+    country: document.getElementById("country").value,
+    paymentMethod: paymentMethod,
+  };
+
+  try {
+    // Create Razorpay order
+    console.log("Creating Razorpay order...");
+    const response = await fetch("/user/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    console.log("Order creation response:", data);
+
+    if (!data.success) {
+      alert("Error: " + (data.message || "Failed to create order"));
+      return;
+    }
+
+    // Open Razorpay modal
+    console.log("Opening Razorpay modal...");
+    const options = {
+      key: data.apiKey,
+      amount: data.amount, 
+      currency: "INR",
+      order_id: data.orderId,
+      name: "Ultra Mart",
+      description: "Order Payment",
+      handler: function (response) {
+        console.log("Payment successful:", response);
+        verifyRazorpayPayment(response, data.orderId);
+      },
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: { color: "#ea580c" },
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function (response) {
+      console.error("Payment failed:", response);
+      alert("Payment failed: " + response.error.description);
+    });
+    
+    rzp.open();
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+}
+
+async function verifyRazorpayPayment(response, orderId) {
+  try {
+    console.log("Verifying payment...");
+    const verifyResponse = await fetch("/user/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+        orderId: orderId,
+      }),
+    });
+
+    const result = await verifyResponse.json();
+    console.log("Verification result:", result);
+
+    if (result.success) {
+      alert("✅ Payment Successful! Order placed.");
+      window.location.href = "/user/myOrders";
+    } else {
+      alert("❌ Payment verification failed: " + (result.message || "Unknown error"));
+    }
+  } catch (error) {
+    console.error("Verification error:", error);
+    alert("Verification failed. Please contact support.");
+  }
+}
+</script>
