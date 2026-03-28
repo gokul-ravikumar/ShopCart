@@ -771,7 +771,6 @@ const forBuyNow = async (req, res) => {
     const userId = req.session.user.id;
     const user = await User.findById(userId);
     const product = await Product.findById(req.params.id);
-
     // ✅ create fake cart for EJS
     const cartProducts = {
       items: [
@@ -835,9 +834,7 @@ const postBuyNow = async (req, res) => {
       paymentMethod,
     } = req.body;
     const productId = req.params.id;
-    console.log("productID:", productId);
     const product = await Product.findById(productId);
-    console.log("productDB:", product);
 
     if (!product) {
       return res.redirect("/product");
@@ -883,6 +880,113 @@ const postBuyNow = async (req, res) => {
   } catch (error) {
     console.error("Buy Now Error:", error);
     res.redirect("/product");
+  }
+};
+
+// Create Razorpay Order for Buy Now
+const createBuyNowOrder = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      phone,
+      street,
+      city,
+      state,
+      zipCode,
+      country,
+      productId,
+    } = req.body;
+
+    const userId = req.session.user.id;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    // Order items
+    const items = [
+      {
+        productId: product._id,
+        title: product.title,
+        quantity: 1,
+        price: product.price,
+      },
+    ];
+
+    const subtotal = product.price;
+    const shipping = 100;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
+
+    const razorpay = require("../helpers/razorpay");
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(total * 100),
+      currency: "INR",
+      receipt: `buynow_${Date.now()}`,
+    });
+
+    const newOrder = new Order({
+      userId,
+      customerInfo: { name, email, phone },
+      address: { street, city, state, zipCode, country },
+      items,
+      subtotal,
+      shipping,
+      tax,
+      totalAmount: total,
+      paymentMethod: "OnLine",
+      razorpayOrderId: razorpayOrder.id,
+      orderStatus: "pending",
+    });
+
+    await newOrder.save();
+
+    res.json({
+      success: true,
+      orderId: razorpayOrder.id,
+      dbOrderId: newOrder._id,
+      amount: Math.round(total * 100),
+      apiKey: process.env.RAZORPAY_API_KEY,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false });
+  }
+};
+
+const verifyBuyNowPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      orderId,
+    } = req.body;
+
+    const crypto = require("crypto");
+
+    const generated_signature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (generated_signature === razorpay_signature) {
+      await Order.findByIdAndUpdate(orderId, {
+        orderStatus: "paid",
+        razorpayPaymentId: razorpay_payment_id,
+      });
+
+      res.json({ success: true });
+    } else {
+      res.json({ success: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false });
   }
 };
 
@@ -943,6 +1047,8 @@ module.exports = {
   verifyPayment,
   forBuyNow,
   postBuyNow,
+  createBuyNowOrder,
+  verifyBuyNowPayment,
   addToCartProduct,
   decrementCartProduct,
   myOrders,

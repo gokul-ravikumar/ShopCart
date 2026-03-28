@@ -26,6 +26,8 @@
 
     <% if (!message || messageType !== 'success') { %>
     <form id="checkoutForm" method="POST" action="/user/product/<%= product._id %>/buyNow" class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <input type="hidden" name="productId" value="<%= product._id %>">
+      <input type="hidden" name="quantity" value="1">
       <!-- Left Column: Customer Info & Address -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Customer Information Card -->
@@ -218,21 +220,6 @@
               <span class="ml-3 text-gray-700 font-medium">OnLine</span>
             </label>
 
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="Debit Card" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">Debit Card</span>
-            </label>
-
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="Credit Card" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">Credit Card</span>
-            </label>
-
-            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-              <input type="radio" name="paymentMethod" value="UPI" class="w-4 h-4 text-orange-600" required />
-              <span class="ml-3 text-gray-700 font-medium">UPI</span>
-            </label>
-
             <span class="text-red-600 text-sm hidden block" id="paymentError"></span>
           </div>
         </div>
@@ -289,7 +276,8 @@
 
           <!-- Submit Button -->
           <button
-            type="submit"
+            type="button"
+            onclick="handleBuyNowCheckOut()"
             class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2"
           >
             <span>Place Order</span>
@@ -310,3 +298,121 @@
 </div>
 <script src="/script/quantity.js"></script>
 <script src="/script/checkoutValidation.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+ async function handleBuyNowCheckOut() {
+
+  const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
+
+  if (!paymentMethodElement) {
+    alert("Please select a payment method");
+    return;
+  }
+
+  const paymentMethod = paymentMethodElement.value;
+
+  if (paymentMethod === "COD") {
+    document.getElementById("checkoutForm").submit();
+    return;
+  }
+
+  const formData = {
+    productId: document.querySelector('input[name="productId"]').value,
+    quantity: document.querySelector('input[name="quantity"]').value,
+
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    street: document.getElementById("street").value,
+    city: document.getElementById("city").value,
+    state: document.getElementById("state").value,
+    zipCode: document.getElementById("zipCode").value,
+    country: document.getElementById("country").value,
+    paymentMethod: paymentMethod,
+  };
+
+  console.log("productId:", formData.productId);
+
+  try {
+
+    const response = await fetch("/user/create-buy-now-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    console.log("data:", data);
+
+    if (!data.success) {
+      alert("Order creation failed");
+      return;
+    }
+
+    const options = {
+      key: data.apiKey,
+      amount: data.amount,
+      currency: "INR",
+      order_id: data.orderId,
+      name: "Ultra Mart",
+      description: "Order Payment",
+      handler: function (response) {
+        verifyRazorpayBuyNowPayment(response, data.orderId);
+      },
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: { color: "#ea580c" },
+    };
+
+    const rzp = new Razorpay(options);
+
+    rzp.on("payment.failed", function (response) {
+      alert("Payment failed: " + response.error.description);
+    });
+
+    rzp.open();
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+}
+
+
+async function verifyRazorpayBuyNowPayment(response, orderId) {
+
+  try {
+
+    const verify = await fetch("/user/verify-buy-now-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+        orderId: orderId
+      })
+    });
+
+    const result = await verify.json();
+
+    if (result.success) {
+      window.location = "/order-success";
+    } else {
+      alert("Payment verification failed");
+    }
+
+  } catch (error) {
+    console.error("Verification error:", error);
+    alert("Verification failed. Please contact support.");
+  }
+}
+</script>
+      

@@ -93,10 +93,14 @@ router.post("/create-order", userAuth.checkUserSession, controllers.createOrder)
 router.post("/verify-payment", userAuth.checkUserSession, controllers.verifyPayment);
 
 //buy now
-router.get("/product/:id/buyNow",controllers.forBuyNow)
+router.get("/product/:id/buyNow",userAuth.checkUserSession,controllers.forBuyNow)
 
 //post buy now
 router.post("/product/:id/buyNow",controllers.postBuyNow)
+
+//razorpay buynow
+router.post("/create-buy-now-order", controllers.createBuyNowOrder);
+router.post("/verify-buy-now-payment", controllers.verifyBuyNowPayment);
 
 //my orders
 router.get("/myOrders", userAuth.checkUserSession, controllers.myOrders);
